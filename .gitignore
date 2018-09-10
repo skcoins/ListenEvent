@@ -3,6 +3,7 @@
 .project
 .settings/
 *.class
+/log/
 
 model/target/
 model/.classpath
