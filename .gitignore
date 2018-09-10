@@ -1,0 +1,17 @@
+/target/
+.classpath
+.project
+.settings/
+*.class
+
+model/target/
+model/.classpath
+model/.project
+model/.settings/
+model/bin/
+
+utils/target/
+utils/.classpath
+utils/.project
+utils/.settings/
+utils/bin/
