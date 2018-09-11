@@ -17,7 +17,7 @@ public class BeanConfig {
 
 	@Bean
 	public Web3j web3j(){
-		return Web3j.build(new HttpService("http://localhost:8545"));
+		return Web3j.build(new HttpService("http://209.97.164.186:8545"));
 	}
 	
 }
