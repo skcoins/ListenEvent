@@ -20,4 +20,9 @@ public class BeanConfig {
 		return Web3j.build(new HttpService("http://209.97.164.186:8545"));
 	}
 	
+	@Bean
+	public Web3j web3jInfura(){
+		return Web3j.build(new HttpService("https://rinkeby.infura.io/v3/7cb181d2acf24e14b5a873101e16ce8e"));
+	}
+	
 }

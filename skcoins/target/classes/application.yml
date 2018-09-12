@@ -37,6 +37,15 @@ spring:
       prefix: /WEB-INF/jsp/
       # 响应页面默认后缀
       suffix: .jsp  
+
+mybatis:
+  type-aliases-package: com.softisland.model
+  mapper-locations: classpath:com/softisland/mapper/*.xml
+mapper:
+  mappers:
+    - com.softisland.common.MyBaseMapper
+  not-empty: false
+  identity: MYSQL      
       
 server:
   port: 80

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.softisland.mapper.TranscationEventMapper">
+  <resultMap id="BaseResultMap" type="com.softisland.model.TranscationEvent">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="block_number" jdbcType="BIGINT" property="blockNumber" />
+    <result column="transcation_hash" jdbcType="VARCHAR" property="transcationHash" />
+    <result column="block_hash" jdbcType="VARCHAR" property="blockHash" />
+    <result column="from_person" jdbcType="VARCHAR" property="fromPerson" />
+    <result column="to_person" jdbcType="VARCHAR" property="toPerson" />
+    <result column="nums" jdbcType="BIGINT" property="nums" />
+    <result column="currency" jdbcType="SMALLINT" property="currency" />
+    <result column="status" jdbcType="SMALLINT" property="status" />
+    <result column="gas" jdbcType="BIGINT" property="gas" />
+    <result column="confirm_block_number" jdbcType="BIGINT" property="confirmBlockNumber" />
+    <result column="is_call" jdbcType="SMALLINT" property="isCall" />
+    <result column="create_date" jdbcType="TIMESTAMP" property="createDate" />
+    <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
+    <result column="call_date" jdbcType="TIMESTAMP" property="callDate" />
+    <result column="event_name" jdbcType="VARCHAR" property="eventName" />
+  </resultMap>
+</mapper>
