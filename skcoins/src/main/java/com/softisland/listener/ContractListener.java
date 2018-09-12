@@ -3,6 +3,7 @@
  */
 package com.softisland.listener;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
@@ -20,6 +21,8 @@ import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.tx.Contract;
 
+import com.softisland.config.EventNameEum;
+import com.softisland.contract.Bankroll_sol_BankRoll;
 import com.softisland.contract.Small_sol_small;
 import com.softisland.handler.RecordEventHandler;
 import com.softisland.model.TranscationEvent;
@@ -98,6 +101,45 @@ public class ContractListener {
 		});
 	}
 	
+	
+	/**
+	 * transfer 监听
+	 */
+	public void redeemEventLister(){
+		BigInteger maxBlockNumber = transcationEventService.getMaxBlockNumber();
+		
+		if(maxBlockNumber == null){
+			maxBlockNumber = nowBlockNumber;
+		}
+		
+		Credentials credentials = Credentials.create("6f57d15e205c5b66c1c5a31ac9a2eb3fa5c9b71cd754584f2af00b3336546659");
+		
+		Bankroll_sol_BankRoll bank = Bankroll_sol_BankRoll.load("0x4e2E80dA333760Bcb9BEB1DD9f1c216Ac51A5D73", web3j, credentials, Contract.GAS_PRICE, Contract.GAS_LIMIT);
+		
+		//开始块
+		DefaultBlockParameter startBlockNumber = DefaultBlockParameter.valueOf(maxBlockNumber);
+		
+		log.info("开始的块信息({})",maxBlockNumber);
+		
+		bank.redeemEventEventObservable(startBlockNumber, DefaultBlockParameterName.LATEST).subscribe(v->{
+			new Thread(RecordEventHandler.builder()
+					.transcationEvent(TranscationEvent.builder()
+							.blockHash(v.log.getBlockHash())
+							.blockNumber(Long.valueOf(v.log.getBlockNumber().intValue()))
+							.createDate(new Date())
+							.fromPerson(v.sender)
+							.toPerson("0x4e2E80dA333760Bcb9BEB1DD9f1c216Ac51A5D73")
+							.nums(v.amount.longValue())
+							.isCall((short)0)
+							.transcationHash(v.log.getTransactionHash())
+							.eventName(EventNameEum.REDEEM_EVENT.getName())
+							.status((short)0)
+							.build())
+					.transcationEventService(transcationEventService)
+					.build()).start();
+		});
+	}
+	
 	/**
 	 * 确认交易是否成功
 	 */
@@ -107,7 +149,7 @@ public class ContractListener {
 		
 		for(TranscationEvent v : transcationEventList){
 			try {
-				EthGetTransactionReceipt ethGetTransactionReceipt = web3jInfura.ethGetTransactionReceipt(v.getTranscationHash()).send();
+				EthGetTransactionReceipt ethGetTransactionReceipt = web3j.ethGetTransactionReceipt(v.getTranscationHash()).send();
 				
 				TransactionReceipt transactionReceipt = ethGetTransactionReceipt.getResult();
 				
@@ -138,6 +180,20 @@ public class ContractListener {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+		}
+	}
+	
+	public void test(){
+		try {
+			TransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt("0x13db5dab91440c3b9f00c8c7c3e307e9ee6d72d49c894e853efa924fac4e66d6").send().getResult();
+			
+			TransactionReceipt transactionReceipt1 = web3jInfura.ethGetTransactionReceipt("0x13db5dab91440c3b9f00c8c7c3e307e9ee6d72d49c894e853efa924fac4e66d6").send().getResult();
+		
+			log.info("1",transactionReceipt);
+			log.info("2",transactionReceipt1);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 }

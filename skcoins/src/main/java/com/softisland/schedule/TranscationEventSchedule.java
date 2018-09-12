@@ -24,7 +24,7 @@ public class TranscationEventSchedule {
 	ContractListener contractListener;
 	
 	
-	@Scheduled(fixedDelay=1000*10,initialDelay=1000*5)
+//	@Scheduled(fixedDelay=1000*10,initialDelay=1000*5)
     public void dealErrorTradeTask(){
 		contractListener.confirmEvent();
 	}

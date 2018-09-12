@@ -15,9 +15,11 @@ public class SkcoinsApplication {
     public static void main(String[] args) {
     	ApplicationContext context = SpringApplication.run(SkcoinsApplication.class, args);
         
-        ContractListener contractListener = context.getBean("contractListener",ContractListener.class);
+//        ContractListener contractListener = context.getBean("contractListener",ContractListener.class);
         
-        contractListener.transcationEventLister();
+
+        
+//        contractListener.test();
         
     }
 }
