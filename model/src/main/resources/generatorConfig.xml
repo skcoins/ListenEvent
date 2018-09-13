@@ -15,9 +15,7 @@
 		<plugin type="org.mybatis.generator.plugins.SerializablePlugin" />
 		<plugin type="org.mybatis.generator.plugins.ToStringPlugin" />
 		<plugin type="tk.mybatis.mapper.generator.MapperPlugin">
-			<property name="mappers" value="tk.mybatis.mapper.common.BaseMapper" />
-			<property name="mappers" value="tk.mybatis.mapper.common.ConditionMapper" />
-			<property name="mappers" value="tk.mybatis.mapper.common.MySqlMapper" />
+			<property name="mappers" value="com.softisland.common.MyBaseMapper" />
 		</plugin>	
 		<!-- 取消生成的代码注释 -->
 		<commentGenerator>
@@ -48,7 +46,7 @@
 		</table> -->
 		 
 		 
-		 <table tableName="transcation_event">
+		 <table tableName="contract_operation">
 			<generatedKey column="id" sqlStatement="Mysql" identity="true" />
 		</table>
 		

@@ -83,6 +83,7 @@ public class ContractListener {
 			
 			Small_sol_small small = Small_sol_small.load("0xAe9AC0bfF865dFB27B397C53ea90600cC69a01A5", web3j, credentials, Contract.GAS_PRICE, Contract.GAS_LIMIT);
 			
+			
 			small.transferEventObservable(startBlockNumber, endBlockNumber).subscribe(transfer->{
 				
 				

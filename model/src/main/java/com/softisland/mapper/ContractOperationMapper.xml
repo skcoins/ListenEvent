@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.softisland.mapper.ContractOperationMapper" >
+  <resultMap id="BaseResultMap" type="com.softisland.model.ContractOperation" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="gas" property="gas" jdbcType="BIGINT" />
+    <result column="status" property="status" jdbcType="SMALLINT" />
+    <result column="transcation_hash" property="transcationHash" jdbcType="VARCHAR" />
+    <result column="block_hash" property="blockHash" jdbcType="VARCHAR" />
+    <result column="block_number" property="blockNumber" jdbcType="BIGINT" />
+    <result column="operation_person" property="operationPerson" jdbcType="VARCHAR" />
+    <result column="to_person" property="toPerson" jdbcType="VARCHAR" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="data" property="data" jdbcType="LONGVARCHAR" />
+  </resultMap>
+</mapper>
