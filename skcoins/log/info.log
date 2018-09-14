@@ -27,3 +27,12 @@
 2018-09-13 09:51:21 158140 [pool-2-thread-2] INFO  c.s.listener.ContractListener - (1536803481566)当前得到的最新块为:(2978446)
 2018-09-13 09:51:35 172500 [pool-2-thread-2] INFO  c.s.listener.ContractListener - (1536803495926)当前得到的最新块为:(2978447)
 2018-09-13 09:51:51 187582 [pool-2-thread-2] INFO  c.s.listener.ContractListener - (1536803511008)当前得到的最新块为:(2978448)
+2018-09-13 10:00:42 1117 [main] INFO  c.softisland.app.SkcoinsApplication - Starting SkcoinsApplication on AQH5Q7JUUOCEZG5 with PID 80612 (F:\coins_space\skcoins-platform\skcoins\target\classes started by Administrator in F:\coins_space\skcoins-platform\skcoins)
+2018-09-13 10:00:42 1120 [main] INFO  c.softisland.app.SkcoinsApplication - No active profile set, falling back to default profiles: default
+2018-09-13 10:00:47 5988 [main] INFO  c.softisland.app.SkcoinsApplication - Started SkcoinsApplication in 5.467 seconds (JVM running for 6.274)
+2018-09-13 10:01:01 20133 [pool-2-thread-1] INFO  c.s.listener.ContractListener - (1536804061233)当前得到的最新块为:(2978485)
+2018-09-13 10:03:29 1467 [main] INFO  c.softisland.app.SkcoinsApplication - Starting SkcoinsApplication on AQH5Q7JUUOCEZG5 with PID 49288 (F:\coins_space\skcoins-platform\skcoins\target\classes started by Administrator in F:\coins_space\skcoins-platform\skcoins)
+2018-09-13 10:03:29 1476 [main] INFO  c.softisland.app.SkcoinsApplication - No active profile set, falling back to default profiles: default
+2018-09-13 10:03:39 12036 [main] INFO  c.softisland.app.SkcoinsApplication - Started SkcoinsApplication in 11.551 seconds (JVM running for 12.305)
+2018-09-13 10:03:49 21982 [pool-2-thread-1] INFO  c.s.listener.ContractListener - (1536804229813)当前得到的最新块为:(2978496)
+2018-09-13 10:04:04 37125 [pool-2-thread-2] INFO  c.s.listener.ContractListener - (1536804244956)当前得到的最新块为:(2978497)

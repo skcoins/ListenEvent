@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
@@ -20,13 +21,17 @@ import com.alibaba.fastjson.JSON;
 import com.softisland.config.ContractEum;
 import com.softisland.contract.Bankroll_sol_BankRoll;
 import com.softisland.dto.LedgerDto;
+import com.softisland.dto.UpdateAdminDto;
 import com.softisland.mapper.ContractOperationMapper;
 import com.softisland.model.ContractOperation;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Administrator
  *
  */
+@Slf4j
 @Service
 public class ContractService {
 
@@ -34,46 +39,112 @@ public class ContractService {
 	Web3j web3j;
 	
 	@Autowired
-	Web3j web3jInfura;
-	
-	@Autowired
 	ContractOperationMapper contractOperationMapper;
 	
+	@Value("#{contract.address}")
+	String contractAddress;
 	
-	public void updateBankRoolAdministrator(List<String> adminstratorList){
-		Credentials credentials = Credentials.create("e72e616234938238d1275aa6b4554d218dbf9cc44c92754e8bcc7deb1496e7e2");
+	@Value("#{contract.send-owner-prikey}")
+	String sendOwnerPrikey;
+	
+	/**
+	 * 管理员操作
+	 * @param adminstratorList
+	 */
+	public void updateBankRoolAdministrator(UpdateAdminDto updateAdminDto){
+		Credentials credentials = Credentials.create(sendOwnerPrikey);
 		
-		Bankroll_sol_BankRoll bank = Bankroll_sol_BankRoll.load("0x4e2E80dA333760Bcb9BEB1DD9f1c216Ac51A5D73", web3j, credentials, Contract.GAS_PRICE, Contract.GAS_LIMIT);
+		Bankroll_sol_BankRoll bank = Bankroll_sol_BankRoll.load(contractAddress, web3j, credentials, Contract.GAS_PRICE, Contract.GAS_LIMIT);
 		
 		try {
-			
-			TransactionReceipt transactionReceipt = bank.setAdministrator(adminstratorList).send();
-			
-			if(transactionReceipt !=null && transactionReceipt.isStatusOK()){
+			TransactionReceipt transactionReceipt = null;
+			switch (updateAdminDto.getType()) {
+			case 0:
+				log.info("禁用管理员,管理员列表({})",JSON.toJSONString(updateAdminDto.getAdminstratorList()));
 				
-				contractOperationMapper.insert(ContractOperation.builder()
-						.name(ContractEum.SET_ADMINISTRATOR.getName())
-						.blockHash(transactionReceipt.getBlockHash())
-						.blockNumber(transactionReceipt.getBlockNumber().longValue())
-						.createDate(new Date())
-						.data(JSON.toJSONString(adminstratorList))
-						.operationPerson(transactionReceipt.getFrom())
-						.toPerson(transactionReceipt.getTo())
-						.transcationHash(transactionReceipt.getTransactionHash())
-						.gas(transactionReceipt.getGasUsed().longValue())
-						.build());
+				transactionReceipt = bank.unsetAdministrator(updateAdminDto.getAdminstratorList()).send();
+				
+				if(transactionReceipt !=null && transactionReceipt.isStatusOK()){
+					
+					contractOperationMapper.insert(ContractOperation.builder()
+							.name(ContractEum.UNSET_ADMINISTRATOR.getName())
+							.blockHash(transactionReceipt.getBlockHash())
+							.blockNumber(transactionReceipt.getBlockNumber().longValue())
+							.createDate(new Date())
+							.data(JSON.toJSONString(updateAdminDto.getAdminstratorList()))
+							.operationPerson(transactionReceipt.getFrom())
+							.toPerson(transactionReceipt.getTo())
+							.transcationHash(transactionReceipt.getTransactionHash())
+							.gas(transactionReceipt.getGasUsed().longValue())
+							.status((short)1)
+							.build());
+				}
+				break;
+			case 1:
+				
+				log.info("启用管理员,管理员列表({})",JSON.toJSONString(updateAdminDto.getAdminstratorList()));
+				
+				transactionReceipt = bank.setAdministrator(updateAdminDto.getAdminstratorList()).send();
+				
+				if(transactionReceipt !=null && transactionReceipt.isStatusOK()){
+					
+					contractOperationMapper.insert(ContractOperation.builder()
+							.name(ContractEum.SET_ADMINISTRATOR.getName())
+							.blockHash(transactionReceipt.getBlockHash())
+							.blockNumber(transactionReceipt.getBlockNumber().longValue())
+							.createDate(new Date())
+							.data(JSON.toJSONString(updateAdminDto.getAdminstratorList()))
+							.operationPerson(transactionReceipt.getFrom())
+							.toPerson(transactionReceipt.getTo())
+							.transcationHash(transactionReceipt.getTransactionHash())
+							.gas(transactionReceipt.getGasUsed().longValue())
+							.status((short)1)
+							.build());
+				}
+				break;
+			case 2:
+				
+				String oldOwner = updateAdminDto.getAdminstratorList().get(0);
+				
+				log.info("替换管理员,老管理员为:({}),新管理员为({})",oldOwner,updateAdminDto.getNewAdmin());
+				
+				transactionReceipt = bank.replaceAdministrator(oldOwner, updateAdminDto.getNewAdmin()).send();
+				
+				if(transactionReceipt !=null && transactionReceipt.isStatusOK()){
+					
+					contractOperationMapper.insert(ContractOperation.builder()
+							.name(ContractEum.REPLACE_ADMINISTRATOR.getName())
+							.blockHash(transactionReceipt.getBlockHash())
+							.blockNumber(transactionReceipt.getBlockNumber().longValue())
+							.createDate(new Date())
+							.data(JSON.toJSONString(updateAdminDto.getAdminstratorList()))
+							.operationPerson(transactionReceipt.getFrom())
+							.toPerson(transactionReceipt.getTo())
+							.transcationHash(transactionReceipt.getTransactionHash())
+							.gas(transactionReceipt.getGasUsed().longValue())
+							.status((short)1)
+							.build());
+				}
+				break;
+			default:
+				log.info("管理员操作,非法操作({})",JSON.toJSONString(updateAdminDto));
+				break;
 			}
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
 	
+	
+	/**
+	 * 修改用户余额
+	 * @param ledgerDto
+	 */
 	public void updateLedger(LedgerDto ledgerDto){
 		Credentials credentials = Credentials.create("ceda59b2b97439952bb3c481123bc197ef2591b83ccf4686ee220d1cdc55519c");
 		
-		Bankroll_sol_BankRoll bank = Bankroll_sol_BankRoll.load("0x4e2E80dA333760Bcb9BEB1DD9f1c216Ac51A5D73", web3j, credentials, Contract.GAS_PRICE, Contract.GAS_LIMIT);
+		Bankroll_sol_BankRoll bank = Bankroll_sol_BankRoll.load(contractAddress, web3j, credentials, Contract.GAS_PRICE, Contract.GAS_LIMIT);
 		
 		List<String> addressList = new ArrayList<String>();
 		
@@ -102,12 +173,32 @@ public class ContractService {
 						.toPerson(transactionReceipt.getTo())
 						.transcationHash(transactionReceipt.getTransactionHash())
 						.gas(transactionReceipt.getGasUsed().longValue())
+						.status((short)1)
 						.build());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
 	}
 	
+	/**
+	 * 查询积分
+	 * @param address
+	 * @return
+	 */
+	public Long queryPoint(String address){
+		Long point = 0l;
+		Credentials credentials = Credentials.create("ceda59b2b97439952bb3c481123bc197ef2591b83ccf4686ee220d1cdc55519c");
+		
+		Bankroll_sol_BankRoll bank = Bankroll_sol_BankRoll.load(contractAddress, web3j, credentials, Contract.GAS_PRICE, Contract.GAS_LIMIT);
+		
+		try {
+			BigInteger ret = bank.point(address).send();
+			point = ret.longValue();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return point;
+	}
 }

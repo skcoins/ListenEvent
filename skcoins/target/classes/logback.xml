@@ -93,7 +93,7 @@
     <logger name="com.alibaba">
         <level value="ERROR"/>
     </logger>
-    <root level="debug">
+    <root level="info">
         <appender-ref ref="stdout"/>
         <appender-ref ref="stash"/>
         <appender-ref ref="INFO_FILE"/>

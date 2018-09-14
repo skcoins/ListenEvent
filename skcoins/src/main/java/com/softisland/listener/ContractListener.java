@@ -21,6 +21,7 @@ import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.tx.Contract;
 
+import com.alibaba.fastjson.JSON;
 import com.softisland.config.EventNameEum;
 import com.softisland.contract.Bankroll_sol_BankRoll;
 import com.softisland.contract.Small_sol_small;
@@ -41,8 +42,8 @@ public class ContractListener {
 	@Autowired
 	Web3j web3j;
 	
-	@Autowired
-	Web3j web3jInfura;
+//	@Autowired
+//	Web3j web3jInfura;
 	
 	@Autowired
 	TranscationEventService transcationEventService;
@@ -81,6 +82,8 @@ public class ContractListener {
 		DefaultBlockParameter startBlockNumber = DefaultBlockParameter.valueOf(maxBlockNumber);
 		
 		log.info("开始的块信息({})",maxBlockNumber);
+		
+		
 		
 		small.transferEventObservable(startBlockNumber, DefaultBlockParameterName.LATEST).subscribe(v->{
 			new Thread(RecordEventHandler.builder()
@@ -221,6 +224,14 @@ public class ContractListener {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public void test() throws IOException{
+		EthGetTransactionReceipt ethGetTransactionReceipt = web3j.ethGetTransactionReceipt("0x13db5dab91440c3b9f00c8c7c3e307e9ee6d72d49c894e853efa924fac4e66d6").send();
+		EthGetTransactionReceipt ethGetTransactionReceipt1 = web3j.ethGetTransactionReceipt("0x92f635317aefb47cbbf76046b8667075ee1086c930374a71a50430c97ae6dc45").send();
+		
+		System.out.println(JSON.toJSONString(ethGetTransactionReceipt.getResult()));
+		System.out.println(JSON.toJSONString(ethGetTransactionReceipt1.getResult()));
 	}
 	
 }

@@ -10,6 +10,8 @@ package com.softisland.config;
 public enum ContractEum {
 	
 	SET_ADMINISTRATOR("setAdministrator"),
+	UNSET_ADMINISTRATOR("unsetAdministrator"),
+	REPLACE_ADMINISTRATOR("replaceAdministrator"),
 	UPDATE_LEDGER("updateLedger"),
 	WITH_DRAW("withdraw");
 
