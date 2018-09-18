@@ -11,11 +11,13 @@ import org.springframework.stereotype.Service;
 
 import com.softisland.mapper.TranscationEventMapper;
 import com.softisland.model.TranscationEvent;
+import com.softisland.vo.TranscationEventVo;
 
 import tk.mybatis.mapper.entity.Condition;
 import tk.mybatis.mapper.entity.Example.Criteria;
 
 /**
+ * ETH 转为TOKEN 
  * @author Administrator
  *
  */
@@ -76,5 +78,17 @@ public class TranscationEventService {
 		
 		
 		return ret;
+	}
+	
+	/**
+	 * 通过tnhash查询
+	 * @param tnHash
+	 * @return
+	 */
+	public List<TranscationEvent> queryTranscationEventByTnHash(String tnHash){
+		List<TranscationEvent> list = transcationEventMapper.select(TranscationEvent.builder()
+				.transcationHash(tnHash)
+				.build());
+		return list;
 	}
 }

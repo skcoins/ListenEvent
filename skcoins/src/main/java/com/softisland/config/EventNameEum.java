@@ -9,8 +9,17 @@ package com.softisland.config;
  */
 public enum EventNameEum {
 
+	/**
+	 * redeem 充值积分
+	 */
 	REDEEM_EVENT("redeemEvent"),
+	/**
+	 * 积分换token
+	 */
 	WITHDRAW_EVENT("withdrawEvent"),
+	/**
+	 * 结算所有积分
+	 */
 	LEDGER_RECORD_EVENT("ledgerRecordEvent");
 	
 	

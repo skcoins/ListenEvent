@@ -46,7 +46,7 @@
 		</table> -->
 		 
 		 
-		 <table tableName="contract_operation">
+		 <table tableName="exchange_coins">
 			<generatedKey column="id" sqlStatement="Mysql" identity="true" />
 		</table>
 		

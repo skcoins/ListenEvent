@@ -1,6 +1,7 @@
 package com.softisland.app;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
@@ -8,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 
-import com.softisland.listener.ContractListener;
+import com.softisland.dto.UpdateAdminDto;
 import com.softisland.service.ContractService;
 
 @MapperScan("com.softisland.mapper")
@@ -20,11 +21,14 @@ public class SkcoinsApplication {
     	
     	ContractService contractService = context.getBean("contractService",ContractService.class);
     	
-//    	List<String> adminstratorList = new ArrayList<String>();
-//    	
-//    	adminstratorList.add("0x5e7607d8cE07b689cb709fe4998f79f7eF8eE841");
-//    	
-//    	contractService.updateBankRoolAdministrator(adminstratorList);
+    	List<String> adminstratorList = new ArrayList<String>();
+    	
+    	adminstratorList.add("0x5e7607d8cE07b689cb709fe4998f79f7eF8eE841");
+    	
+    	contractService.updateBankRoolAdministrator(UpdateAdminDto.builder()
+    			.adminstratorList(adminstratorList)
+    			.type(1)
+    			.build());
     	
 //    	List<DataInfo> dataList = new ArrayList<DataInfo>();
 //    	
@@ -60,15 +64,18 @@ public class SkcoinsApplication {
 //    			.dateTime(System.currentTimeMillis()/1000)
 //    			.build());
         
-        ContractListener contractListener = context.getBean("contractListener",ContractListener.class);
-        
-
-        try {
-			contractListener.test();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//        ContractListener contractListener = context.getBean("contractListener",ContractListener.class);
+//        
+//
+//        try {
+//			contractListener.redeemEventLister();
+//			
+////			contractService.ethRedeem();
+////			contractService.withdraw();
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
         
     }
 }
