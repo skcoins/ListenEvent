@@ -86,6 +86,7 @@ public class SkCoinEventHandler<T> implements Runnable{
 						.tradePerson(v.buyer) //购买者
 						.transcationHash(v.log.getTransactionHash())
 						.isCall((short)0)
+						.platformToken(v.toPlatformToken.toString())
 						.build());
 			}
 		} catch (Exception e) {

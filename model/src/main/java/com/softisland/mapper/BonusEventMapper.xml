@@ -21,5 +21,6 @@
     <result column="referrer" property="referrer" jdbcType="VARCHAR" />
     <result column="referrer_token" property="referrerToken" jdbcType="VARCHAR" />
     <result column="token_holder" property="tokenHolder" jdbcType="VARCHAR" />
+    <result column="platform_token" property="platformToken" jdbcType="VARCHAR" />
   </resultMap>
 </mapper>

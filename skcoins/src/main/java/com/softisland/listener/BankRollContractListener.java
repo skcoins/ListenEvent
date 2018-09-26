@@ -27,6 +27,7 @@ import com.alibaba.fastjson.JSON;
 import com.softisland.bean.utils.JRedisUtils;
 import com.softisland.config.EventNameEum;
 import com.softisland.config.RedisKeyConfig;
+import com.softisland.config.TrascationStatusEum;
 import com.softisland.contract.Bankroll_sol_BankRoll;
 import com.softisland.contract.Small_sol_small;
 import com.softisland.handler.CommonHandler;
@@ -173,7 +174,7 @@ public class BankRollContractListener {
 				if(transactionReceipt != null && transactionReceipt.isStatusOK()){
 					ret = exchangeCoinsService.updateExchangeCoinsEvent(ExchangeCoins.builder()
 							.id(v.getId())
-							.status((short)1)
+							.status(TrascationStatusEum.SUCCESS_STATUS.getStatus().shortValue())
 							.updateDate(new Date())
 							.gas(transactionReceipt.getGasUsed().toString())
 							.confirmBlockNum(nowBlockNumber.longValue())
@@ -181,17 +182,13 @@ public class BankRollContractListener {
 				} else {
 					 ret = exchangeCoinsService.updateExchangeCoinsEvent(ExchangeCoins.builder()
 							.id(v.getId())
-							.status((short)2)
+							.status(TrascationStatusEum.FAIL_STATUS.getStatus().shortValue())
 							.updateDate(new Date())
 							.gas(transactionReceipt.getGasUsed().toString())
 							.confirmBlockNum(nowBlockNumber.longValue())
 							.build(), 1);
 				}
 				
-				if(ret > 0){
-					//TODO ret > 0 回调前端
-					log.info("回调前端");
-				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

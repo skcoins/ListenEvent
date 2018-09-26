@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.softisland.config.TrascationStatusEum;
 import com.softisland.mapper.ExchangeCoinsMapper;
 import com.softisland.mapper.LedgerEventMapper;
 import com.softisland.model.ExchangeCoins;
@@ -71,7 +72,7 @@ public class ExchangeCoinsService {
 	public List<ExchangeCoins> queryNoCall(){
 		Condition condition = new Condition(ExchangeCoins.class);
 		Criteria criteria = condition.createCriteria();
-		criteria.andNotEqualTo("status", 0);
+		criteria.andNotEqualTo("status", TrascationStatusEum.DEFAULT_STATUS.getStatus());
 		criteria.andEqualTo("isCall", 0);
 		return exchangeCoinsMapper.selectByCondition(condition);
 	}

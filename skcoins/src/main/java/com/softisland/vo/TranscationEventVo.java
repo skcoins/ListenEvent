@@ -28,6 +28,8 @@ public class TranscationEventVo {
 	
 	private String nums;
 	
+	
+	// 0 eth 1 token 2 积分
 	private Integer currency;
 	
 	private String divChoice;
@@ -47,4 +49,6 @@ public class TranscationEventVo {
 	private String referrerToken;
 	
 	private String tokenHolder;
+	
+	private String platformToken;
 }

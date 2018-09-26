@@ -60,6 +60,9 @@ public class BonusEvent implements Serializable {
 
     @Column(name = "token_holder")
     private String tokenHolder;
+    
+    @Column(name = "platform_token")
+    private String platformToken;
 
     private static final long serialVersionUID = 1L;
 

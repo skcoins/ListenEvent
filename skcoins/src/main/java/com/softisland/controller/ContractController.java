@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.softisland.dto.DivideDto;
@@ -104,6 +105,86 @@ public class ContractController {
 		
 		try {
 			message.setData(contractService.divide(divideDto));
+		} catch (Exception e) {
+			message.setRet(Message.FAILED);
+			message.setCode("500");
+			message.setMsg("服务器错误，请稍后再试");
+			e.printStackTrace();
+		}
+		
+		return message;
+	}
+	
+	@ResponseBody
+	@RequestMapping("/getEthBalance")
+	public Message getEthBalance(@RequestParam(value = "address" , required = true)String address){
+		Message message = Message.builder()
+				.ret(Message.SUCCESS)
+				.code("200")
+				.msg("成功")
+				.build();
+		try {
+			message.setData(contractService.getEthBalance(address));
+		} catch (Exception e) {
+			message.setRet(Message.FAILED);
+			message.setCode("500");
+			message.setMsg("服务器错误，请稍后再试");
+			e.printStackTrace();
+		}
+		
+		return message;
+	}
+	
+	@ResponseBody
+	@RequestMapping("/getTotalSupply")
+	public Message getTotalSupply(){
+		Message message = Message.builder()
+				.ret(Message.SUCCESS)
+				.code("200")
+				.msg("成功")
+				.build();
+		try {
+			message.setData(contractService.getTotalSupply());
+		} catch (Exception e) {
+			message.setRet(Message.FAILED);
+			message.setCode("500");
+			message.setMsg("服务器错误，请稍后再试");
+			e.printStackTrace();
+		}
+		
+		return message;
+	}
+	
+	@ResponseBody
+	@RequestMapping("/getTotalEthBalance")
+	public Message getTotalEthBalance(){
+		Message message = Message.builder()
+				.ret(Message.SUCCESS)
+				.code("200")
+				.msg("成功")
+				.build();
+		try {
+			message.setData(contractService.getTotalEthBalance());
+		} catch (Exception e) {
+			message.setRet(Message.FAILED);
+			message.setCode("500");
+			message.setMsg("服务器错误，请稍后再试");
+			e.printStackTrace();
+		}
+		
+		return message;
+	}
+	
+	@ResponseBody
+	@RequestMapping("/getTokenBalance")
+	public Message getTokenBalance(@RequestParam(value = "address" , required = true)String address){
+		Message message = Message.builder()
+				.ret(Message.SUCCESS)
+				.code("200")
+				.msg("成功")
+				.build();
+		try {
+			message.setData(contractService.getTokenBalance(address));
 		} catch (Exception e) {
 			message.setRet(Message.FAILED);
 			message.setCode("500");

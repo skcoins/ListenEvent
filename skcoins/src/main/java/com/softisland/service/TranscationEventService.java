@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.softisland.config.TrascationStatusEum;
 import com.softisland.mapper.BonusEventMapper;
 import com.softisland.mapper.TranscationEventMapper;
 import com.softisland.model.BonusEvent;
@@ -114,7 +115,7 @@ public class TranscationEventService {
 	public List<TranscationEvent> queryNoCall(){
 		Condition condition = new Condition(TranscationEvent.class);
 		Criteria criteria = condition.createCriteria();
-		criteria.andNotEqualTo("status", 0);
+		criteria.andNotEqualTo("status", TrascationStatusEum.DEFAULT_STATUS.getStatus());
 		criteria.andEqualTo("isCall", 0);
 		
 		return transcationEventMapper.selectByCondition(condition);
@@ -144,7 +145,7 @@ public class TranscationEventService {
 	public List<BonusEvent> queryNoCallBonus(){
 		Condition condition = new Condition(BonusEvent.class);
 		Criteria criteria = condition.createCriteria();
-		criteria.andNotEqualTo("status", 0);
+		criteria.andNotEqualTo("status", TrascationStatusEum.DEFAULT_STATUS.getStatus());
 		criteria.andEqualTo("isCall", 0);
 		
 		return bonusEventMapper.selectByCondition(condition);

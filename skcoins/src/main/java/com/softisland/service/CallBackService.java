@@ -69,6 +69,8 @@ public class CallBackService {
 							.transactionHash(v.getTranscationHash())
 							.tradePerson(v.getTradePerson())
 							.gasUsed(v.getGas())
+							.currency(v.getCurrency().intValue())
+							.nums(v.getNums())
 							.build())
 					.build()));
 					if(response!=null && response.getStatus() == 200){
@@ -159,6 +161,7 @@ public class CallBackService {
 			.referredBy(v.getReferrer())
 			.referrerToken(v.getReferrerToken())
 			.tokenHolder(v.getTokenHolder())
+			.platformToken(v.getPlatformToken())
 			.build();
 			
 			Message message = Message.builder()

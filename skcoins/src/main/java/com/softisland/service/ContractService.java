@@ -21,8 +21,10 @@ import org.web3j.abi.datatypes.Function;
 import org.web3j.abi.datatypes.Type;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.methods.request.Transaction;
 import org.web3j.protocol.core.methods.response.EthEstimateGas;
+import org.web3j.protocol.core.methods.response.EthGetBalance;
 import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.tx.Contract;
@@ -35,11 +37,11 @@ import com.softisland.config.TrascationStatusEum;
 import com.softisland.contract.Bankroll_sol_BankRoll;
 import com.softisland.contract.Bankroll_sol_BankRoll.PointToTokenEventEventResponse;
 import com.softisland.contract.Bankroll_sol_BankRoll.TokenToPointEventEventResponse;
-import com.softisland.contract.Skcoin_sol_Skcoin.AssetsDetailEventResponse;
+import com.softisland.contract.Skcoin_sol_Skcoin;
 import com.softisland.contract.Skcoin_sol_Skcoin.DividendDetailEventResponse;
 import com.softisland.contract.Skcoin_sol_Skcoin.OnTokenPurchaseEventResponse;
 import com.softisland.contract.Skcoin_sol_Skcoin.OnTokenSellEventResponse;
-import com.softisland.contract.Skcoin_sol_Skcoin;
+import com.softisland.dto.AddressArrayDto;
 import com.softisland.dto.DivideDto;
 import com.softisland.dto.LedgerDto;
 import com.softisland.dto.QueryEventDto;
@@ -51,6 +53,7 @@ import com.softisland.model.ExchangeCoins;
 import com.softisland.model.LedgerEvent;
 import com.softisland.model.TranscationEvent;
 import com.softisland.vo.DivideVo;
+import com.softisland.vo.EthBalanceVo;
 import com.softisland.vo.TranscationEventVo;
 
 import lombok.extern.slf4j.Slf4j;
@@ -107,7 +110,7 @@ public class ContractService {
 							.toPerson(transactionReceipt.getTo())
 							.transcationHash(transactionReceipt.getTransactionHash())
 							.gas(transactionReceipt.getGasUsed().longValue())
-							.status((short)1)
+							.status(TrascationStatusEum.SUCCESS_STATUS.getStatus().shortValue())
 							.build());
 				}
 				break;
@@ -129,7 +132,7 @@ public class ContractService {
 							.toPerson(transactionReceipt.getTo())
 							.transcationHash(transactionReceipt.getTransactionHash())
 							.gas(transactionReceipt.getGasUsed().longValue())
-							.status((short)1)
+							.status(TrascationStatusEum.SUCCESS_STATUS.getStatus().shortValue())
 							.build());
 				}
 				break;
@@ -153,7 +156,7 @@ public class ContractService {
 							.toPerson(transactionReceipt.getTo())
 							.transcationHash(transactionReceipt.getTransactionHash())
 							.gas(transactionReceipt.getGasUsed().longValue())
-							.status((short)1)
+							.status(TrascationStatusEum.SUCCESS_STATUS.getStatus().shortValue())
 							.build());
 				}
 				break;
@@ -322,12 +325,13 @@ public class ContractService {
 						transcationEventVo = TranscationEventVo.builder()
 								.currency(1)
 								.eventName(EventNameEum.ON_TOKEN_SELL_EVENT.getName())
-								.gasUsed(Convert.fromWei(transcationReceipt.getGasUsed().toString(), Convert.Unit.ETHER).toString())
-								.nums(v.tokensBurned.toString())
+								.gasUsed(transcationReceipt.getGasUsed().toString())
+								.nums(Convert.fromWei(v.tokensBurned.toString(), Convert.Unit.ETHER).toPlainString())
 								.status(TrascationStatusEum.SUCCESS_STATUS.getStatus())
-								.tokenPrice(v.tokenPrice.toString())
+								.tokenPrice(Convert.fromWei(v.tokenPrice.toString(), Convert.Unit.ETHER).toPlainString())
 								.tradePerson(v.customerAddress)
-								.ethMinted(v.ethereumEarned.toString())
+								.divChoice(v.divRate.toString())
+								.ethMinted(Convert.fromWei(v.ethereumEarned.toString(), Convert.Unit.ETHER).toPlainString())
 								.transactionHash(transcationReceipt.getTransactionHash())
 							.build();
 					}
@@ -339,22 +343,28 @@ public class ContractService {
 		} else {
 			TranscationEvent transcationEvent = transcationList.get(0);
 			transcationEventVo = TranscationEventVo.builder()
+				.gasUsed(transcationEvent.getGas())
 				.currency(transcationEvent.getCurrency().intValue())
 				.divChoice(transcationEvent.getDivChoice())
-				.nums(transcationEvent.getNums())
+				.nums(Convert.fromWei(transcationEvent.getNums(), Convert.Unit.ETHER).toPlainString())
 				.referredBy(transcationEvent.getReferredBy())
 				.status(transcationEvent.getStatus().intValue())
-				.tokenPrice(transcationEvent.getTokenPrice())
-				.tokensMinted(transcationEvent.getTokensMinted())
+				.tokenPrice(transcationEvent.getTokenPrice()!=null ? Convert.fromWei(transcationEvent.getTokenPrice(), Convert.Unit.ETHER).toPlainString(): null)
+				.tokensMinted(transcationEvent.getTokensMinted() != null ? Convert.fromWei(transcationEvent.getTokensMinted(), Convert.Unit.ETHER).toPlainString() : null)
 				.tradePerson(transcationEvent.getTradePerson())
 				.transactionHash(transcationEvent.getTranscationHash())
-				.ethMinted(transcationEvent.getEthMinted())
+				.ethMinted(transcationEvent.getEthMinted() != null ? Convert.fromWei(transcationEvent.getTokensMinted(), Convert.Unit.ETHER).toPlainString() : null)
 			.build();
 		}
 		
 		return transcationEventVo;
 	}
 	
+	/**
+	 * 
+	 * @param queryEventDto
+	 * @return
+	 */
 	public TranscationEventVo queryBankRollEvents(QueryEventDto queryEventDto){
 		
 		TranscationEventVo transcationEventVo = null;
@@ -370,19 +380,10 @@ public class ContractService {
 				if(transcationReceipt == null || !transcationReceipt.isStatusOK()){
 					transcationEventVo = TranscationEventVo.builder()
 					.transactionHash(queryEventDto.getTnHash())
-					.status(TrascationStatusEum.DEFAULT_STATUS.getStatus())
+					.status(TrascationStatusEum.FAIL_STATUS.getStatus())
 					.build();
 					return transcationEventVo;
 				}
-				
-				//交易失败
-				if(!transcationReceipt.isStatusOK()){
-					transcationEventVo = TranscationEventVo.builder()
-							.transactionHash(queryEventDto.getTnHash())
-							.status(TrascationStatusEum.FAIL_STATUS.getStatus())
-							.build();
-					return transcationEventVo;
-				}  
 				
 				//TOKEN转积分
 				if(queryEventDto.getEventName().equals(EventNameEum.REDEEM_EVENT.getName())){
@@ -405,6 +406,9 @@ public class ContractService {
 							.transactionHash(queryEventDto.getTnHash())
 							.tradePerson(v._recharger)
 							.nums(v._amount.toString())
+							.eventName(EventNameEum.REDEEM_EVENT.getName())
+							.businessId(v._id.longValue())
+							.gasUsed(transcationReceipt.getGasUsed().toString())
 							.build();
 					
 					//成功记录写入数据库 
@@ -424,7 +428,7 @@ public class ContractService {
 							.transcationHash(v.log.getTransactionHash())
 							.updateDate(new Date())
 							.build());
-				}else if(queryEventDto.getEventName().equals(EventNameEum.REDEEM_EVENT.getName())){
+				}else if(queryEventDto.getEventName().equals(EventNameEum.WITHDRAW_EVENT.getName())){
 					List<PointToTokenEventEventResponse> responseList = bankroll_sol_BankRoll.getPointToTokenEventEvents(transcationReceipt);
 					
 					//有交易 但没有日志 认定为失败
@@ -439,11 +443,14 @@ public class ContractService {
 					PointToTokenEventEventResponse v  = responseList.get(0);
 					
 					transcationEventVo = TranscationEventVo.builder()
-							.currency(1)
+							.currency(2)
 							.status(TrascationStatusEum.SUCCESS_STATUS.getStatus())
 							.transactionHash(queryEventDto.getTnHash())
 							.tradePerson(v.sender)
 							.nums(v.amount.toString())
+							.eventName(EventNameEum.WITHDRAW_EVENT.getName())
+							.businessId(v._id.longValue())
+							.gasUsed(transcationReceipt.getGasUsed().toString())
 							.build();
 					
 					//成功记录写入数据库 
@@ -630,6 +637,107 @@ public class ContractService {
 		}
 		
 		return divideVoList;
+	}
+	
+	/**
+	 * 获取余额
+	 * @param address
+	 * @return
+	 */
+	public String getEthBalance(String address){
+		String balanceStr = null;
+		try {
+			
+			EthGetBalance balance = web3j.ethGetBalance(address, DefaultBlockParameter.valueOf("latest")).send();
+			balanceStr =  Convert.fromWei(balance.getBalance().toString(),Convert.Unit.ETHER).toPlainString();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return balanceStr;
+	}
+	
+	/**
+	 * 
+	 * @param addressArrayDto
+	 * @return
+	 */
+	public List<EthBalanceVo> getEthBalances(AddressArrayDto addressArrayDto){
+		
+		List<EthBalanceVo> ethBalanceVoList = new ArrayList<EthBalanceVo>();
+		
+		List<String> addressList = addressArrayDto.getAddressList();
+		for(String a : addressList){
+			try {
+				EthGetBalance balance =  web3j.ethGetBalance(a, DefaultBlockParameter.valueOf("latest")).send();
+				
+				String balanceStr =  Convert.fromWei(balance.getBalance().toString(),Convert.Unit.ETHER).toPlainString();
+				
+				ethBalanceVoList.add(EthBalanceVo.builder()
+						.address(a)
+						.balance(balanceStr)
+						.build());
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return ethBalanceVoList;
+	}
+	
+	/**
+	 * 得到发行量
+	 * @return
+	 */
+	public String getTotalSupply(){
+		BigInteger total = null;
+		String totalSupply = null;
+		try {
+			total = skcoin_sol_Skcoin.totalSupply().send();
+			
+			totalSupply = Convert.fromWei(total.toString(),Convert.Unit.ETHER).toPlainString();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return totalSupply;
+	}
+	
+	/**
+	 * 得到合约持有eth
+	 * @return
+	 */
+	public String getTotalEthBalance(){
+		BigInteger total = null;
+		String totalBalance = null;
+		try {
+			total = skcoin_sol_Skcoin.totalEtherBalance().send();
+			
+			totalBalance = Convert.fromWei(total.toString(),Convert.Unit.ETHER).toPlainString();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return totalBalance;
+	}
+	
+	/**
+	 * 得到目标地址TOKEN余额
+	 * @param address
+	 * @return
+	 */
+	public String getTokenBalance(String address){
+		BigInteger total = null;
+		String totalBalance = null;
+		try {
+			total = skcoin_sol_Skcoin.balanceOf(address).send();
+			
+			totalBalance = Convert.fromWei(total.toString(),Convert.Unit.ETHER).toPlainString();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return totalBalance;
 	}
 	
 }

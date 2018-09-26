@@ -18,6 +18,7 @@ import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
 import com.softisland.bean.utils.JRedisUtils;
 import com.softisland.config.RedisKeyConfig;
+import com.softisland.config.TrascationStatusEum;
 import com.softisland.contract.Skcoin_sol_Skcoin;
 import com.softisland.handler.CommonHandler;
 import com.softisland.handler.SkCoinEventHandler;
@@ -78,7 +79,7 @@ public class SkCoinContractListener {
 				if(transactionReceipt != null && transactionReceipt.isStatusOK()){
 					ret = transcationEventService.updateTranscationEvent(TranscationEvent.builder()
 							.id(v.getId())
-							.status((short)1)
+							.status(TrascationStatusEum.SUCCESS_STATUS.getStatus().shortValue())
 							.updateDate(new Date())
 							.gas(transactionReceipt.getGasUsed().toString())
 							.confirmBlockNumber(nowBlockNumber.longValue())
@@ -86,7 +87,7 @@ public class SkCoinContractListener {
 				} else {
 					 ret = transcationEventService.updateTranscationEvent(TranscationEvent.builder()
 							.id(v.getId())
-							.status((short)2)
+							.status(TrascationStatusEum.FAIL_STATUS.getStatus().shortValue())
 							.updateDate(new Date())
 							.gas(transactionReceipt.getGasUsed().toString())
 							.confirmBlockNumber(nowBlockNumber.longValue())
