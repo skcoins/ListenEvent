@@ -19,6 +19,9 @@ public class ExchangeCoins implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "business_id")
+    private Long businessId;
+    
     @Column(name = "block_number")
     private Long blockNumber;
 
@@ -28,13 +31,10 @@ public class ExchangeCoins implements Serializable {
     @Column(name = "block_hash")
     private String blockHash;
 
-    @Column(name = "from_person")
-    private String fromPerson;
+    @Column(name = "trade_person")
+    private String tradePerson;
 
-    @Column(name = "to_person")
-    private String toPerson;
-
-    private Long nums;
+    private String nums;
 
     //0:eth  1:token 2 积分
     private Short currency;
@@ -44,7 +44,7 @@ public class ExchangeCoins implements Serializable {
 
     private Short status;
 
-    private Long gas;
+    private String gas;
 
     @Column(name = "confirm_block_num")
     private Long confirmBlockNum;

@@ -9,9 +9,10 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.softisland.mapper.BonusEventMapper;
 import com.softisland.mapper.TranscationEventMapper;
+import com.softisland.model.BonusEvent;
 import com.softisland.model.TranscationEvent;
-import com.softisland.vo.TranscationEventVo;
 
 import tk.mybatis.mapper.entity.Condition;
 import tk.mybatis.mapper.entity.Example.Criteria;
@@ -26,6 +27,9 @@ public class TranscationEventService {
 
 	@Autowired
 	TranscationEventMapper transcationEventMapper;
+	
+	@Autowired
+	BonusEventMapper bonusEventMapper;
 	
 	/**
 	 * 新增
@@ -90,5 +94,63 @@ public class TranscationEventService {
 				.transcationHash(tnHash)
 				.build());
 		return list;
+	}
+	
+	/**
+	 * 
+	 * @param businessId
+	 * @param tnHash
+	 * @return
+	 */
+	public List<TranscationEvent> queryTranscationEventByBusinessId(Long businessId,String tnHash){
+		List<TranscationEvent> list = transcationEventMapper.select(TranscationEvent.builder().businessId(businessId).build());
+		return list;
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public List<TranscationEvent> queryNoCall(){
+		Condition condition = new Condition(TranscationEvent.class);
+		Criteria criteria = condition.createCriteria();
+		criteria.andNotEqualTo("status", 0);
+		criteria.andEqualTo("isCall", 0);
+		
+		return transcationEventMapper.selectByCondition(condition);
+	}
+	
+	/**
+	 * 
+	 * @param transcationEvent
+	 * @return
+	 */
+	public int updateTranscationEvent(TranscationEvent transcationEvent){
+		return transcationEventMapper.updateByPrimaryKeySelective(transcationEvent);
+	}
+	
+	/**
+	 * 
+	 * @param bonusEvent
+	 */
+	public void insertBonusEvent(BonusEvent bonusEvent){
+		bonusEventMapper.insert(bonusEvent);
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public List<BonusEvent> queryNoCallBonus(){
+		Condition condition = new Condition(BonusEvent.class);
+		Criteria criteria = condition.createCriteria();
+		criteria.andNotEqualTo("status", 0);
+		criteria.andEqualTo("isCall", 0);
+		
+		return bonusEventMapper.selectByCondition(condition);
+	}
+	
+	public int updateBonusEvent(BonusEvent bonusEvent){
+		return bonusEventMapper.updateByPrimaryKeySelective(bonusEvent);
 	}
 }

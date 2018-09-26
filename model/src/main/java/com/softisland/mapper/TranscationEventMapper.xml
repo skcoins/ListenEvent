@@ -9,8 +9,7 @@
     <result column="block_number" jdbcType="BIGINT" property="blockNumber" />
     <result column="transcation_hash" jdbcType="VARCHAR" property="transcationHash" />
     <result column="block_hash" jdbcType="VARCHAR" property="blockHash" />
-    <result column="from_person" jdbcType="VARCHAR" property="fromPerson" />
-    <result column="to_person" jdbcType="VARCHAR" property="toPerson" />
+    <result column="trade_person" jdbcType="VARCHAR" property="tradePerson" />
     <result column="nums" jdbcType="BIGINT" property="nums" />
     <result column="currency" jdbcType="SMALLINT" property="currency" />
     <result column="status" jdbcType="SMALLINT" property="status" />
@@ -21,5 +20,10 @@
     <result column="update_date" jdbcType="TIMESTAMP" property="updateDate" />
     <result column="call_date" jdbcType="TIMESTAMP" property="callDate" />
     <result column="event_name" jdbcType="VARCHAR" property="eventName" />
+    <result column="div_choice" jdbcType="VARCHAR" property="divChoice" />
+    <result column="tokens_minted" jdbcType="VARCHAR" property="tokensMinted" />
+    <result column="token_price" jdbcType="VARCHAR" property="tokenPrice" />
+    <result column="referred_by" jdbcType="VARCHAR" property="referredBy" />
+    <result column="eth_minted" jdbcType="VARCHAR" property="ethMinted" />
   </resultMap>
 </mapper>

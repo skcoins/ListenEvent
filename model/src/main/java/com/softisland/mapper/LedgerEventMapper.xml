@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.softisland.mapper.LedgerEventMapper" >
+  <resultMap id="BaseResultMap" type="com.softisland.model.LedgerEvent" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="business_id" property="businessId" jdbcType="VARCHAR" />
+    <result column="block_number" property="blockNumber" jdbcType="BIGINT" />
+    <result column="transcation_hash" property="transcationHash" jdbcType="VARCHAR" />
+    <result column="block_hash" property="blockHash" jdbcType="VARCHAR" />
+    <result column="event_name" property="eventName" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="SMALLINT" />
+    <result column="gas" property="gas" jdbcType="VARCHAR" />
+    <result column="confirm_block_num" property="confirmBlockNum" jdbcType="BIGINT" />
+    <result column="is_call" property="isCall" jdbcType="SMALLINT" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="call_date" property="callDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+</mapper>

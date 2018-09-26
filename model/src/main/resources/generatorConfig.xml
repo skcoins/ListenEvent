@@ -46,7 +46,7 @@
 		</table> -->
 		 
 		 
-		 <table tableName="exchange_coins">
+		 <table tableName="bonus_event">
 			<generatedKey column="id" sqlStatement="Mysql" identity="true" />
 		</table>
 		

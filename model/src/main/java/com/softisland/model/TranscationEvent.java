@@ -19,6 +19,9 @@ public class TranscationEvent implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    @Column(name = "business_id")
+    private Long businessId;
 
     @Column(name = "block_number")
     private Long blockNumber;
@@ -31,20 +34,17 @@ public class TranscationEvent implements Serializable {
     @Column(name = "block_hash")
     private String blockHash;
 
-    @Column(name = "from_person")
-    private String fromPerson;
+    @Column(name = "trade_person")
+    private String tradePerson;
 
-    @Column(name = "to_person")
-    private String toPerson;
-
-    private Long nums;
+    private String nums;
 
     private Short currency;
 
     //交易状态 0初始化，1交易成功 2交易失败
     private Short status;
 
-    private Long gas;
+    private String gas;
 
     @Column(name = "confirm_block_number")
     private Long confirmBlockNumber;
@@ -64,6 +64,21 @@ public class TranscationEvent implements Serializable {
     
     @Column(name = "event_name")
     private String eventName;
+    
+    @Column(name = "div_choice")
+    private String divChoice;
+    
+    @Column(name = "tokens_minted")
+    private String tokensMinted;
+    
+    @Column(name = "token_price")
+    private String tokenPrice;
+    
+    @Column(name = "referred_by")
+    private String referredBy;
+    
+    @Column(name = "eth_minted")
+    private String ethMinted;
 
     private static final long serialVersionUID = 1L;
 

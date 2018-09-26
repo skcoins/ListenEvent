@@ -17,18 +17,18 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TranscationEventVo {
-
-	private String transcaionHash;
 	
-	private String fromPerson;
-	
-	private String toPerson;
-	
-	private Long nums;
-	
-	private Integer currency;
+	private Long businessId;
 	
 	private Integer status;
+
+	private String transactionHash;
+	
+	private String tradePerson;
+	
+	private String nums;
+	
+	private Integer currency;
 	
 	private String divChoice;
 	
@@ -38,4 +38,13 @@ public class TranscationEventVo {
 	
 	private String referredBy;
 	
+	private String ethMinted;
+	
+	private String eventName;
+	
+	private String gasUsed;
+	
+	private String referrerToken;
+	
+	private String tokenHolder;
 }

@@ -18,6 +18,9 @@ public class ContractOperation implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    @Column(name = "business_id")
+    private Long businessId; 
 
     private String name;
 
