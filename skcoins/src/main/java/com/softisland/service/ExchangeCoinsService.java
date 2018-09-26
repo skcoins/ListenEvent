@@ -61,8 +61,7 @@ public class ExchangeCoinsService {
 	 * @return
 	 */
 	public List<ExchangeCoins> queryDefaultTranscationEvent(Long nowBlockNumber){
-		
-		return exchangeCoinsMapper.queryDefaultExchangeCoins(nowBlockNumber);
+		return exchangeCoinsMapper.queryDefaultExchangeCoins(TrascationStatusEum.DEFAULT_STATUS.getStatus(),nowBlockNumber);
 	}
 	
 	/**

@@ -22,6 +22,7 @@ import com.softisland.config.TrascationStatusEum;
 import com.softisland.contract.Skcoin_sol_Skcoin;
 import com.softisland.handler.CommonHandler;
 import com.softisland.handler.SkCoinEventHandler;
+import com.softisland.model.BonusEvent;
 import com.softisland.model.TranscationEvent;
 import com.softisland.service.TranscationEventService;
 
@@ -86,6 +87,52 @@ public class SkCoinContractListener {
 							.build(), null);
 				} else {
 					 ret = transcationEventService.updateTranscationEvent(TranscationEvent.builder()
+							.id(v.getId())
+							.status(TrascationStatusEum.FAIL_STATUS.getStatus().shortValue())
+							.updateDate(new Date())
+							.gas(transactionReceipt.getGasUsed().toString())
+							.confirmBlockNumber(nowBlockNumber.longValue())
+							.build(), 1);
+				}
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	
+	public void confirmBonusEvent(){
+		
+		String nowBlock = null;
+		try {
+			nowBlock = jRedisUtils.getValue(RedisKeyConfig.BLOCK_NUMBER_NOW);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+		if(StringUtils.isNoneBlank(nowBlock)){
+			nowBlockNumber = new BigInteger(nowBlock);
+		}
+		
+		//通过当前块  查询 交易块+12 < 当前块的
+		List<BonusEvent> bonusEventList = transcationEventService.queryDefaultBonusEvent(nowBlockNumber.longValue());
+		
+		for(BonusEvent v : bonusEventList){
+			try {
+				EthGetTransactionReceipt ethGetTransactionReceipt = web3j.ethGetTransactionReceipt(v.getTranscationHash()).send();
+				
+				TransactionReceipt transactionReceipt = ethGetTransactionReceipt.getResult();
+				int ret = 0 ;
+				if(transactionReceipt != null && transactionReceipt.isStatusOK()){
+					ret = transcationEventService.updateBonusEvent(BonusEvent.builder()
+							.id(v.getId())
+							.status(TrascationStatusEum.SUCCESS_STATUS.getStatus().shortValue())
+							.updateDate(new Date())
+							.gas(transactionReceipt.getGasUsed().toString())
+							.confirmBlockNumber(nowBlockNumber.longValue())
+							.build(), null);
+				} else {
+					 ret = transcationEventService.updateBonusEvent(BonusEvent.builder()
 							.id(v.getId())
 							.status(TrascationStatusEum.FAIL_STATUS.getStatus().shortValue())
 							.updateDate(new Date())

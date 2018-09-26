@@ -42,6 +42,9 @@ public class CallBackService {
 	@Autowired
 	TranscationEventService transcationEventService;
 	
+	@Autowired
+	ContractService contractService;
+	
 	
 	
 	public void bankRollCallBack(){
@@ -62,16 +65,7 @@ public class CallBackService {
 					.ret(Message.SUCCESS)
 					.code("200")
 					.msg("成功")
-					.data(TranscationEventVo.builder()
-							.status(v.getStatus().intValue())
-							.businessId(v.getBusinessId())
-							.eventName(v.getEventName())
-							.transactionHash(v.getTranscationHash())
-							.tradePerson(v.getTradePerson())
-							.gasUsed(v.getGas())
-							.currency(v.getCurrency().intValue())
-							.nums(v.getNums())
-							.build())
+					.data(contractService.getTranscationEventVo(v))
 					.build()));
 					if(response!=null && response.getStatus() == 200){
 						exchangeCoinsService.updateExchangeCoins(ExchangeCoins.builder()
@@ -99,30 +93,12 @@ public class CallBackService {
 		List<TranscationEvent> list = transcationEventService.queryNoCall();
 		list.forEach(v->{
 			try {
-				
-				
-				
 				Message message = Message.builder()
 				.ret(Message.SUCCESS)
 				.code("200")
 				.msg("成功")
-				.data(TranscationEventVo.builder()
-						.status(v.getStatus().intValue())
-						.businessId(v.getBusinessId())
-						.eventName(v.getEventName())
-						.currency(v.getCurrency().intValue())
-						.divChoice(v.getDivChoice())
-						.ethMinted(v.getEthMinted()!=null ? Convert.fromWei(v.getEthMinted(), Convert.Unit.ETHER).toPlainString() : null)
-						.eventName(v.getEventName())
-						.nums(v.getCurrency().equals((short)0) ? Convert.fromWei(v.getNums(),Convert.Unit.ETHER).toPlainString() : v.getNums())
-						.referredBy(v.getReferredBy())
-						.status(v.getStatus().intValue())
-						.tokenPrice(v.getTokenPrice()!=null ? Convert.fromWei(v.getTokenPrice(), Convert.Unit.ETHER).toPlainString() : null)
-						.tokensMinted(v.getTokensMinted()!=null ? Convert.fromWei(v.getTokensMinted(), Convert.Unit.ETHER).toPlainString() : null)
-						.tradePerson(v.getTradePerson())
-						.transactionHash(v.getTranscationHash())
-						.gasUsed(v.getGas())
-						.build()).build();
+				.data(contractService.getTranscationEventVo(v)).build();
+				
 				log.info("skcoin 回调内容({})",JSON.toJSONString(message));
 				
 				SoftHttpResponse response = OKHttpClientUtil.postJsonDataToUrl(sysConfig.getValue(), JSON.toJSONString(message));
@@ -153,22 +129,11 @@ public class CallBackService {
 		
 		list.forEach(v -> {
 			
-			TranscationEventVo vo = TranscationEventVo.builder()
-			.eventName(v.getEventName())
-			.gasUsed(v.getGas())
-			.status(v.getStatus().intValue())
-			.tradePerson(v.getTradePerson())
-			.referredBy(v.getReferrer())
-			.referrerToken(v.getReferrerToken())
-			.tokenHolder(v.getTokenHolder())
-			.platformToken(v.getPlatformToken())
-			.build();
-			
 			Message message = Message.builder()
 					.ret(Message.SUCCESS)
 					.code("200")
 					.msg("成功")
-					.data(vo).build();
+					.data(contractService.getTranscationEventVo(v)).build();
 			
 			try {
 				SoftHttpResponse response = OKHttpClientUtil.postJsonDataToUrl(sysConfig.getValue(), JSON.toJSONString(message));

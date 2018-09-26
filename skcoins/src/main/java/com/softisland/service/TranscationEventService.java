@@ -62,12 +62,22 @@ public class TranscationEventService {
 	 */
 	public List<TranscationEvent> queryDefaultTranscationEvent(Long nowBlockNumber){
 		
-		return transcationEventMapper.queryDefaultTranscationEvent(nowBlockNumber);
+		return transcationEventMapper.queryDefaultTranscationEvent(TrascationStatusEum.DEFAULT_STATUS.getStatus(),nowBlockNumber);
 	}
 	
 	/**
-	 * 
+	 * 得到未完成交易的
+	 * @param nowBlockNumber
+	 * @return
+	 */
+	public List<BonusEvent> queryDefaultBonusEvent(Long nowBlockNumber){
+		return bonusEventMapper.queryDefaultBonusEvent(TrascationStatusEum.DEFAULT_STATUS.getStatus(),nowBlockNumber);
+	}
+	
+	/**
+	 * 更新TranscationEvent状态
 	 * @param transcationEvent
+	 * @param status
 	 * @return
 	 */
 	public int updateTranscationEvent(TranscationEvent transcationEvent,Integer status){
@@ -80,8 +90,25 @@ public class TranscationEventService {
 		criteria.andEqualTo("id", transcationEvent.getId());
 		
 		int ret = transcationEventMapper.updateByConditionSelective(transcationEvent, condition);
+		return ret;
+	}
+	
+	/**
+	 * 
+	 * @param bonusEvent
+	 * @param status
+	 * @return
+	 */
+	public int updateBonusEvent(BonusEvent bonusEvent,Integer status){
+		Condition condition = new Condition(TranscationEvent.class);
+		Criteria criteria = condition.createCriteria();
+		if(status != null){
+			criteria.andNotEqualTo("status", status);
+		}
 		
+		criteria.andEqualTo("id", bonusEvent.getId());
 		
+		int ret = bonusEventMapper.updateByConditionSelective(bonusEvent, condition);
 		return ret;
 	}
 	

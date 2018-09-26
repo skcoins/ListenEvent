@@ -48,6 +48,7 @@ import com.softisland.dto.QueryEventDto;
 import com.softisland.dto.SkcAddressDto;
 import com.softisland.dto.UpdateAdminDto;
 import com.softisland.mapper.ContractOperationMapper;
+import com.softisland.model.BonusEvent;
 import com.softisland.model.ContractOperation;
 import com.softisland.model.ExchangeCoins;
 import com.softisland.model.LedgerEvent;
@@ -286,6 +287,8 @@ public class ContractService {
 		
 		TranscationEventVo transcationEventVo = null;
 		
+		TranscationEvent transcationEvent = null;
+		
 		List<TranscationEvent> transcationList = transcationEventService.queryTranscationEventByTnHash(queryEventDto.getTnHash());
 		if(transcationList == null || transcationList.size() == 0){
 			try {
@@ -295,7 +298,7 @@ public class ContractService {
 				if(transcationReceipt == null || !transcationReceipt.isStatusOK()){
 					transcationEventVo = TranscationEventVo.builder()
 						.transactionHash(queryEventDto.getTnHash())
-						.status(TrascationStatusEum.DEFAULT_STATUS.getStatus())
+						.status(TrascationStatusEum.FAIL_STATUS.getStatus())
 					.build();
 				} else {
 					if(queryEventDto.getEventName().equals(EventNameEum.ON_TOKEN_PURCHASE_EVENT.getName())){
@@ -303,37 +306,45 @@ public class ContractService {
 						
 						OnTokenPurchaseEventResponse v = buyTokenList.get(0);
 						
-						transcationEventVo = TranscationEventVo.builder()
-								.currency(0)
-								.divChoice(v.divChoice.toString())
-								.eventName(EventNameEum.ON_TOKEN_PURCHASE_EVENT.getName())
-								.gasUsed(Convert.fromWei(transcationReceipt.getGasUsed().toString(), Convert.Unit.ETHER).toString())
-								.nums(Convert.fromWei(v.incomingEthereum.toString(), Convert.Unit.ETHER).toString())
-								.referredBy(v.referrer)
-								.status(TrascationStatusEum.SUCCESS_STATUS.getStatus())
-								.tokenPrice(v.tokenPrice.toString())
-								.tokensMinted(v.tokensMinted.toString())
-								.tradePerson(v.customerAddress)
-								.transactionHash(transcationReceipt.getTransactionHash())
-							.build();
-						
+						transcationEvent = TranscationEvent.builder()
+							.blockHash(v.log.getBlockHash())
+							.blockNumber(v.log.getBlockNumber().longValue())
+							.createDate(new Date())
+							.currency((short)0)
+							.eventName(EventNameEum.ON_TOKEN_PURCHASE_EVENT.getName())
+							.divChoice(v.divChoice.toString())
+							.nums(v.incomingEthereum.toString())
+							.referredBy(v.referrer)
+							.status(TrascationStatusEum.SUCCESS_STATUS.getStatus().shortValue())
+							.tokenPrice(v.tokenPrice.toString())
+							.tokensMinted(v.tokensMinted.toString())
+							.tradePerson(v.customerAddress)
+							.transcationHash(v.log.getTransactionHash())
+							.isCall((short)0)
+						.build();
+						//
+						transcationEventService.insertTranscationEvent(transcationEvent);
 					} else if (queryEventDto.getEventName().equals(EventNameEum.ON_TOKEN_SELL_EVENT.getName())){
 						List<OnTokenSellEventResponse> sellTokenList = skcoin_sol_Skcoin.getOnTokenSellEvents(transcationReceipt);
 						
 						OnTokenSellEventResponse v = sellTokenList.get(0);
 						
-						transcationEventVo = TranscationEventVo.builder()
-								.currency(1)
-								.eventName(EventNameEum.ON_TOKEN_SELL_EVENT.getName())
-								.gasUsed(transcationReceipt.getGasUsed().toString())
-								.nums(Convert.fromWei(v.tokensBurned.toString(), Convert.Unit.ETHER).toPlainString())
-								.status(TrascationStatusEum.SUCCESS_STATUS.getStatus())
-								.tokenPrice(Convert.fromWei(v.tokenPrice.toString(), Convert.Unit.ETHER).toPlainString())
-								.tradePerson(v.customerAddress)
-								.divChoice(v.divRate.toString())
-								.ethMinted(Convert.fromWei(v.ethereumEarned.toString(), Convert.Unit.ETHER).toPlainString())
-								.transactionHash(transcationReceipt.getTransactionHash())
-							.build();
+						transcationEvent = TranscationEvent.builder()
+							.blockHash(v.log.getBlockHash())
+							.blockNumber(v.log.getBlockNumber().longValue())
+							.createDate(new Date())
+							.currency((short)1)
+							.eventName(EventNameEum.ON_TOKEN_SELL_EVENT.getName())
+							.nums(v.tokensBurned.toString())
+							.status(TrascationStatusEum.SUCCESS_STATUS.getStatus().shortValue())
+							.tradePerson(v.customerAddress)
+							.transcationHash(v.log.getTransactionHash())
+							.ethMinted(v.ethereumEarned.toString())
+							.isCall((short)0)
+							.divChoice(v.divRate.toString())
+						.build();
+						//
+						transcationEventService.insertTranscationEvent(transcationEvent);
 					}
 				}
 			} catch (IOException e) {
@@ -341,21 +352,13 @@ public class ContractService {
 			}
 			
 		} else {
-			TranscationEvent transcationEvent = transcationList.get(0);
-			transcationEventVo = TranscationEventVo.builder()
-				.gasUsed(transcationEvent.getGas())
-				.currency(transcationEvent.getCurrency().intValue())
-				.divChoice(transcationEvent.getDivChoice())
-				.nums(Convert.fromWei(transcationEvent.getNums(), Convert.Unit.ETHER).toPlainString())
-				.referredBy(transcationEvent.getReferredBy())
-				.status(transcationEvent.getStatus().intValue())
-				.tokenPrice(transcationEvent.getTokenPrice()!=null ? Convert.fromWei(transcationEvent.getTokenPrice(), Convert.Unit.ETHER).toPlainString(): null)
-				.tokensMinted(transcationEvent.getTokensMinted() != null ? Convert.fromWei(transcationEvent.getTokensMinted(), Convert.Unit.ETHER).toPlainString() : null)
-				.tradePerson(transcationEvent.getTradePerson())
-				.transactionHash(transcationEvent.getTranscationHash())
-				.ethMinted(transcationEvent.getEthMinted() != null ? Convert.fromWei(transcationEvent.getTokensMinted(), Convert.Unit.ETHER).toPlainString() : null)
-			.build();
+			transcationEvent = transcationList.get(0);
 		}
+		
+		if(transcationEvent != null){
+			transcationEventVo = getTranscationEventVo(transcationEvent);
+		}
+		
 		
 		return transcationEventVo;
 	}
@@ -366,6 +369,8 @@ public class ContractService {
 	 * @return
 	 */
 	public TranscationEventVo queryBankRollEvents(QueryEventDto queryEventDto){
+		
+		ExchangeCoins exchangeCoins = null;
 		
 		TranscationEventVo transcationEventVo = null;
 		
@@ -399,35 +404,26 @@ public class ContractService {
 					}
 					
 					TokenToPointEventEventResponse v  = responseList.get(0);
-					
-					transcationEventVo = TranscationEventVo.builder()
-							.currency(1)
-							.status(TrascationStatusEum.SUCCESS_STATUS.getStatus())
-							.transactionHash(queryEventDto.getTnHash())
-							.tradePerson(v._recharger)
-							.nums(v._amount.toString())
-							.eventName(EventNameEum.REDEEM_EVENT.getName())
-							.businessId(v._id.longValue())
-							.gasUsed(transcationReceipt.getGasUsed().toString())
-							.build();
+					exchangeCoins = ExchangeCoins.builder()
+						.blockHash(v.log.getBlockHash())
+						.blockNumber(v.log.getBlockNumber().longValue())
+						.callDate(new Date())
+						.confirmBlockNum(0l)
+						.createDate(new Date())
+						.currency((short)1)
+						.eventName(EventNameEum.REDEEM_EVENT.getName())
+						.tradePerson(v._recharger)
+						.gas(transcationReceipt.getGasUsed().toString())
+						.isCall((short)1)
+						.nums(v._amount.toString())
+						.status(TrascationStatusEum.SUCCESS_STATUS.getStatus().shortValue())
+						.transcationHash(v.log.getTransactionHash())
+						.updateDate(new Date())
+					.build();
 					
 					//成功记录写入数据库 
-					exchangeCoinsService.insertExchangeCoins(ExchangeCoins.builder()
-							.blockHash(v.log.getBlockHash())
-							.blockNumber(v.log.getBlockNumber().longValue())
-							.callDate(new Date())
-							.confirmBlockNum(0l)
-							.createDate(new Date())
-							.currency((short)1)
-							.eventName(EventNameEum.REDEEM_EVENT.getName())
-							.tradePerson(v._recharger)
-							.gas(transcationReceipt.getGasUsed().toString())
-							.isCall((short)1)
-							.nums(v._amount.toString())
-							.status(TrascationStatusEum.SUCCESS_STATUS.getStatus().shortValue())
-							.transcationHash(v.log.getTransactionHash())
-							.updateDate(new Date())
-							.build());
+					exchangeCoinsService.insertExchangeCoins(exchangeCoins);
+					
 				}else if(queryEventDto.getEventName().equals(EventNameEum.WITHDRAW_EVENT.getName())){
 					List<PointToTokenEventEventResponse> responseList = bankroll_sol_BankRoll.getPointToTokenEventEvents(transcationReceipt);
 					
@@ -442,52 +438,101 @@ public class ContractService {
 					
 					PointToTokenEventEventResponse v  = responseList.get(0);
 					
-					transcationEventVo = TranscationEventVo.builder()
-							.currency(2)
-							.status(TrascationStatusEum.SUCCESS_STATUS.getStatus())
-							.transactionHash(queryEventDto.getTnHash())
-							.tradePerson(v.sender)
-							.nums(v.amount.toString())
-							.eventName(EventNameEum.WITHDRAW_EVENT.getName())
-							.businessId(v._id.longValue())
-							.gasUsed(transcationReceipt.getGasUsed().toString())
-							.build();
 					
+					exchangeCoins = ExchangeCoins.builder()
+						.businessId(v._id.longValue())
+						.blockHash(v.log.getBlockHash())
+						.blockNumber(v.log.getBlockNumber().longValue())
+						.callDate(new Date())
+						.confirmBlockNum(0l)
+						.createDate(new Date())
+						.currency((short)1)
+						.eventName(EventNameEum.WITHDRAW_EVENT.getName())
+						.tradePerson(v.sender)
+						.gas(transcationReceipt.getGasUsed().toString())
+						.isCall((short)1)
+						.nums(v.amount.toString())
+						.status(TrascationStatusEum.SUCCESS_STATUS.getStatus().shortValue())
+						.transcationHash(v.log.getTransactionHash())
+						.updateDate(new Date())
+					.build();
 					//成功记录写入数据库 
-					exchangeCoinsService.insertExchangeCoins(ExchangeCoins.builder()
-							.businessId(v._id.longValue())
-							.blockHash(v.log.getBlockHash())
-							.blockNumber(v.log.getBlockNumber().longValue())
-							.callDate(new Date())
-							.confirmBlockNum(0l)
-							.createDate(new Date())
-							.currency((short)1)
-							.eventName(EventNameEum.WITHDRAW_EVENT.getName())
-							.tradePerson(v.sender)
-							.gas(transcationReceipt.getGasUsed().toString())
-							.isCall((short)1)
-							.nums(v.amount.toString())
-							.status(TrascationStatusEum.SUCCESS_STATUS.getStatus().shortValue())
-							.transcationHash(v.log.getTransactionHash())
-							.updateDate(new Date())
-							.build());
+					exchangeCoinsService.insertExchangeCoins(exchangeCoins);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		} else {
-			
-			ExchangeCoins exchangeCoins = exchangesCoinsList.get(0);
-			
-			transcationEventVo = TranscationEventVo.builder()
-					.currency(exchangeCoins.getCurrency().intValue())
-					.status(exchangeCoins.getStatus().intValue())
-					.transactionHash(exchangeCoins.getTranscationHash())
-					.tradePerson(exchangeCoins.getTradePerson())
-					.nums(exchangeCoins.getNums())
-					.build();
+			exchangeCoins = exchangesCoinsList.get(0);
 		}
+		
+		if(exchangeCoins != null){
+			transcationEventVo = getTranscationEventVo(exchangeCoins);
+		}
+		
 		return transcationEventVo;
+	}
+	
+	
+	/**
+	 * 通过ExchangeCoins组装TranscationEventVo
+	 * @param v
+	 * @return
+	 */
+	public TranscationEventVo getTranscationEventVo(ExchangeCoins v){
+		return TranscationEventVo.builder()
+			.status(v.getStatus().intValue())
+			.businessId(v.getBusinessId())
+			.eventName(v.getEventName())
+			.transactionHash(v.getTranscationHash())
+			.tradePerson(v.getTradePerson())
+			.gasUsed(v.getGas())
+			.currency(v.getCurrency().intValue())
+			.nums(v.getNums())
+			.build();
+	}
+	
+	/**
+	 * 通过TranscationEvent 组装 TranscationEventVo
+	 * @param v
+	 * @return
+	 */
+	public TranscationEventVo getTranscationEventVo(TranscationEvent v){
+		return TranscationEventVo.builder()
+			.status(v.getStatus().intValue())
+			.businessId(v.getBusinessId())
+			.eventName(v.getEventName())
+			.currency(v.getCurrency().intValue())
+			.divChoice(v.getDivChoice())
+			.ethMinted(v.getEthMinted() != null ? Convert.fromWei(v.getEthMinted(), Convert.Unit.ETHER).toPlainString() : null)
+			.eventName(v.getEventName())
+			.nums(v.getCurrency().equals((short)0) ? Convert.fromWei(v.getNums(),Convert.Unit.ETHER).toPlainString() : v.getNums())
+			.referredBy(v.getReferredBy())
+			.status(v.getStatus().intValue())
+			.tokenPrice(v.getTokenPrice() != null ? Convert.fromWei(v.getTokenPrice(), Convert.Unit.ETHER).toPlainString() : null)
+			.tokensMinted(v.getTokensMinted() != null ? Convert.fromWei(v.getTokensMinted(), Convert.Unit.ETHER).toPlainString() : null)
+			.tradePerson(v.getTradePerson())
+			.transactionHash(v.getTranscationHash())
+			.gasUsed(v.getGas())
+			.build();
+	}
+	
+	/**
+	 * 通过BonusEvent 组装 TranscationEventVo
+	 * @param v
+	 * @return
+	 */
+	public TranscationEventVo getTranscationEventVo(BonusEvent v){
+		return TranscationEventVo.builder()
+				.eventName(v.getEventName())
+				.gasUsed(v.getGas())
+				.status(v.getStatus().intValue())
+				.tradePerson(v.getTradePerson())
+				.referredBy(v.getReferrer())
+				.referrerToken(v.getReferrerToken())
+				.tokenHolder(v.getTokenHolder())
+				.platformToken(v.getPlatformToken())
+				.build();
 	}
 	
 	/**
@@ -506,7 +551,7 @@ public class ContractService {
 		}else if (queryEventDto.getEventName().equals(EventNameEum.REDEEM_EVENT.getName()) 
 				|| queryEventDto.getEventName().equals(EventNameEum.WITHDRAW_EVENT.getName())){
 			
-				
+			return queryBankRollEvents(queryEventDto);
 			
 		}
 		

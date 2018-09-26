@@ -29,8 +29,8 @@ public class ContractController {
 	ContractService contractService;
 	
 	@ResponseBody
-	@RequestMapping("/queryTrascationEvent")
-	public Message queryTrascationEvent(@RequestBody QueryEventDto queryEventDto){
+	@RequestMapping("/queryTransactionEvent")
+	public Message queryTrasactionEvent(@RequestBody QueryEventDto queryEventDto){
 		
 		Message message = Message.builder()
 				.ret(Message.SUCCESS)
