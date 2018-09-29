@@ -24,6 +24,7 @@ import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.methods.request.Transaction;
 import org.web3j.protocol.core.methods.response.EthEstimateGas;
+import org.web3j.protocol.core.methods.response.EthGasPrice;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
 import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
@@ -32,6 +33,7 @@ import org.web3j.utils.Convert;
 
 import com.alibaba.fastjson.JSON;
 import com.softisland.config.ContractEum;
+import com.softisland.config.ErrorCodeEum;
 import com.softisland.config.EventNameEum;
 import com.softisland.config.TrascationStatusEum;
 import com.softisland.contract.Bankroll_sol_BankRoll;
@@ -44,14 +46,18 @@ import com.softisland.contract.Skcoin_sol_Skcoin.OnTokenSellEventResponse;
 import com.softisland.dto.AddressArrayDto;
 import com.softisland.dto.DivideDto;
 import com.softisland.dto.LedgerDto;
+import com.softisland.dto.PointToTokenDto;
 import com.softisland.dto.QueryEventDto;
 import com.softisland.dto.SkcAddressDto;
 import com.softisland.dto.UpdateAdminDto;
+import com.softisland.exception.SkcoinException;
 import com.softisland.mapper.ContractOperationMapper;
+import com.softisland.mapper.SysConfigMapper;
 import com.softisland.model.BonusEvent;
 import com.softisland.model.ContractOperation;
 import com.softisland.model.ExchangeCoins;
 import com.softisland.model.LedgerEvent;
+import com.softisland.model.SysConfig;
 import com.softisland.model.TranscationEvent;
 import com.softisland.vo.DivideVo;
 import com.softisland.vo.EthBalanceVo;
@@ -84,6 +90,11 @@ public class ContractService {
 	
 	@Autowired
 	ExchangeCoinsService exchangeCoinsService;
+	
+	@Autowired
+	SysConfigMapper sysConfigMapper;
+	
+	private static BigInteger gasPriceMax = new BigInteger("50000000000");
 	
 	/**
 	 * 管理员操作
@@ -175,8 +186,9 @@ public class ContractService {
 	/**
 	 * 修改用户余额
 	 * @param ledgerDto
+	 * @throws SkcoinException 
 	 */
-	public void updateLedger(LedgerDto ledgerDto){
+	public void updateLedger(LedgerDto ledgerDto) throws SkcoinException{
 		
 		Credentials credentials = Credentials.create(ledgerDto.getAdminPrikey());
 		
@@ -188,8 +200,8 @@ public class ContractService {
 		
 		ledgerDto.getDataList().forEach(v->{
 			addressList.add(v.getAddress());
-			oldPointList.add(new BigInteger(v.getOldPoints()));
-			newPointList.add(new BigInteger(v.getNewPoints()));
+			oldPointList.add(Convert.toWei(v.getOldPoints(), Convert.Unit.ETHER).toBigInteger());
+			newPointList.add(Convert.toWei(v.getNewPoints(), Convert.Unit.ETHER).toBigInteger());
 		});
 		
 		//计算ehtgas
@@ -204,26 +216,27 @@ public class ContractService {
                         org.web3j.abi.Utils.typeMap(newPointList, org.web3j.abi.datatypes.generated.Uint256.class))), 
                 Collections.<TypeReference<?>>emptyList());
 		
-		BigInteger gasPrice = Contract.GAS_PRICE;
+		
+		BigInteger gasPrice = getGasPrice();
 		BigInteger gasLimit = Contract.GAS_LIMIT;
+//				getGasLimit(function, ledgerDto.getAdminAddress(), bankroll_sol_BankRoll.getContractAddress());
 		
-		EthEstimateGas ethEstimateGas = null;
-		
-		try {
-			ethEstimateGas = web3j.ethEstimateGas(Transaction.createEthCallTransaction(ledgerDto.getAdminAddress(), bankroll_sol_BankRoll.getContractAddress(), FunctionEncoder.encode(function))).send();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		if(gasPrice.compareTo(gasPriceMax) > 0){
+			throw new SkcoinException(ErrorCodeEum.ETH_GASPRICE_HIGH);
 		}
 		
-		if(ethEstimateGas != null){
-			gasPrice = ethEstimateGas.getAmountUsed();
-			BigDecimal gasUp = BigDecimal.valueOf(gasPrice.longValue()).multiply(new BigDecimal("0.1"));
-			
-			gasLimit = gasPrice.add(gasUp.toBigInteger()) ;
+		BigInteger gasFee = gasPrice.multiply(gasLimit);
+		
+		//得到管理员的余额
+		BigInteger balance = getEthBalanceWei(ledgerDto.getAdminAddress());
+		 
+		
+		if(balance.compareTo(gasFee) < 0 ){
+			throw new SkcoinException(ErrorCodeEum.ETH_BALANCE_NOT_ENOUGH);
 		}
 		
-		Bankroll_sol_BankRoll bank = Bankroll_sol_BankRoll.load(bankroll_sol_BankRoll.getContractAddress(), web3j, credentials, gasPrice, gasLimit);
+		
+		Bankroll_sol_BankRoll bank = Bankroll_sol_BankRoll.load(bankroll_sol_BankRoll.getContractAddress(), web3j, credentials,  gasPrice, gasLimit);
 		
 		//写入监听事件
 		exchangeCoinsService.insertledgerEvent(LedgerEvent.builder()
@@ -264,15 +277,10 @@ public class ContractService {
 	 */
 	public Long queryPoint(String address){
 		Long point = 0l;
-//		Credentials credentials = Credentials.create("ceda59b2b97439952bb3c481123bc197ef2591b83ccf4686ee220d1cdc55519c");
-//		
-//		Bankroll_sol_BankRoll bank = Bankroll_sol_BankRoll.load(tokenContractAddress, web3j, credentials, Contract.GAS_PRICE, Contract.GAS_LIMIT);
-		
 		try {
 			BigInteger ret = bankroll_sol_BankRoll.point(address).send();
 			point = ret.longValue();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return point;
@@ -364,7 +372,7 @@ public class ContractService {
 	}
 	
 	/**
-	 * 
+	 * 查询token换积分  积分换token
 	 * @param queryEventDto
 	 * @return
 	 */
@@ -486,9 +494,9 @@ public class ContractService {
 			.eventName(v.getEventName())
 			.transactionHash(v.getTranscationHash())
 			.tradePerson(v.getTradePerson())
-			.gasUsed(v.getGas())
+			.gasUsed(v.getGas() !=null ?Convert.fromWei(v.getGas(), Convert.Unit.ETHER).toPlainString(): null)
 			.currency(v.getCurrency().intValue())
-			.nums(v.getNums())
+			.nums(v.getNums()!=null ? Convert.fromWei(v.getNums(),Convert.Unit.ETHER).toPlainString() : null)
 			.build();
 	}
 	
@@ -513,7 +521,7 @@ public class ContractService {
 			.tokensMinted(v.getTokensMinted() != null ? Convert.fromWei(v.getTokensMinted(), Convert.Unit.ETHER).toPlainString() : null)
 			.tradePerson(v.getTradePerson())
 			.transactionHash(v.getTranscationHash())
-			.gasUsed(v.getGas())
+			.gasUsed(v.getGas() !=null ?Convert.fromWei(v.getGas(), Convert.Unit.ETHER).toPlainString(): null)
 			.build();
 	}
 	
@@ -525,7 +533,7 @@ public class ContractService {
 	public TranscationEventVo getTranscationEventVo(BonusEvent v){
 		return TranscationEventVo.builder()
 				.eventName(v.getEventName())
-				.gasUsed(v.getGas())
+				.gasUsed(v.getGas() !=null ?Convert.fromWei(v.getGas(), Convert.Unit.ETHER).toPlainString(): null)
 				.status(v.getStatus().intValue())
 				.tradePerson(v.getTradePerson())
 				.referredBy(v.getReferrer())
@@ -559,7 +567,7 @@ public class ContractService {
 	}
 	
 	
-	public void setSkcAdderss(SkcAddressDto skcAddressDto){
+	public void setSkcAdderss(SkcAddressDto skcAddressDto) throws SkcoinException{
 		try {
 			
 			//预计得到gas费用
@@ -587,8 +595,15 @@ public class ContractService {
 				gasLimit = gasPrice.add(gasUp.toBigInteger()) ;
 			}
 			
+			//得到管理员的余额
+			BigInteger balance = getEthBalanceWei(skcAddressDto.getAdminAddress());
+			
+			if(balance.compareTo(gasPrice) < 0 ){
+				throw new SkcoinException(ErrorCodeEum.ETH_BALANCE_NOT_ENOUGH);
+			}
+			
 			Credentials credentials = Credentials.create(skcAddressDto.getAdminPrikey());
-			Bankroll_sol_BankRoll bank = Bankroll_sol_BankRoll.load(bankroll_sol_BankRoll.getContractAddress(), web3j, credentials, gasPrice, gasLimit);
+			Bankroll_sol_BankRoll bank = Bankroll_sol_BankRoll.load(bankroll_sol_BankRoll.getContractAddress(), web3j, credentials, Contract.GAS_PRICE, gasLimit);
 			
 			TransactionReceipt transactionReceipt = bank.setSkcAdderss(skcAddressDto.getSkcAddress()).send();
 			if(transactionReceipt !=null && transactionReceipt.isStatusOK()){
@@ -616,7 +631,7 @@ public class ContractService {
 	 * 手动分红
 	 * @param divideDto
 	 */
-	public List<DivideVo> divide(DivideDto divideDto){
+	public List<DivideVo> divide(DivideDto divideDto) throws SkcoinException{
 		List<DivideVo> divideVoList = new ArrayList<>();
 		
 		TransactionReceipt transactionReceipt = null;
@@ -627,28 +642,28 @@ public class ContractService {
 	                Arrays.<Type>asList(), 
 	                Collections.<TypeReference<?>>emptyList());
 			
-			BigInteger gasPrice = Contract.GAS_PRICE;
+			
+			BigInteger gasPrice = getGasPrice();
 			BigInteger gasLimit = Contract.GAS_LIMIT;
+//					getGasLimit(function, divideDto.getAdminAddress(), skcoin_sol_Skcoin.getContractAddress());
 			
-			EthEstimateGas ethEstimateGas = null;
-			
-			try {
-				ethEstimateGas = web3j.ethEstimateGas(Transaction.createEthCallTransaction(divideDto.getAdminAddress(), bankroll_sol_BankRoll.getContractAddress(), FunctionEncoder.encode(function))).send();
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+			if(gasPrice.compareTo(gasPriceMax) > 0){
+				throw new SkcoinException(ErrorCodeEum.ETH_GASPRICE_HIGH);
 			}
 			
-			if(ethEstimateGas != null){
-				gasPrice = ethEstimateGas.getAmountUsed();
-				BigDecimal gasUp = BigDecimal.valueOf(gasPrice.longValue()).multiply(new BigDecimal("0.1"));
-				
-				gasLimit = gasPrice.add(gasUp.toBigInteger()) ;
+			BigInteger gasFee = gasPrice.multiply(gasLimit);
+			
+			//得到管理员的余额
+			BigInteger balance = getEthBalanceWei(divideDto.getAdminAddress());
+			 
+			
+			if(balance.compareTo(gasFee) < 0 ){
+				throw new SkcoinException(ErrorCodeEum.ETH_BALANCE_NOT_ENOUGH);
 			}
 			
 			
 			Credentials credentials = Credentials.create(divideDto.getAdminPrikey());
-			Skcoin_sol_Skcoin skcoin = Skcoin_sol_Skcoin.load(skcoin_sol_Skcoin.getContractAddress(), web3j, credentials, gasPrice, gasLimit);
+			Skcoin_sol_Skcoin skcoin = Skcoin_sol_Skcoin.load(skcoin_sol_Skcoin.getContractAddress(), web3j, credentials,gasPrice, gasLimit);
 			
 			transactionReceipt = skcoin.divide().send();
 			
@@ -702,6 +717,24 @@ public class ContractService {
 		}
 		
 		return balanceStr;
+	}
+	
+	/**
+	 * 获取余额 单位wei
+	 * @param address
+	 * @return
+	 */
+	public BigInteger getEthBalanceWei(String address){
+		BigInteger balanceInt = null;
+		try {
+			
+			EthGetBalance balance = web3j.ethGetBalance(address, DefaultBlockParameter.valueOf("latest")).send();
+			balanceInt = balance.getBalance();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return balanceInt;
 	}
 	
 	/**
@@ -783,6 +816,176 @@ public class ContractService {
 			e.printStackTrace();
 		}
 		return totalBalance;
+	}
+	
+	/**
+	 * 积分换token
+	 * @param pointToTokenDto
+	 * @throws SkcoinException
+	 */
+	public void pointToToken(PointToTokenDto pointToTokenDto) throws SkcoinException{
+		log.info("积分换token传的参数({})",JSON.toJSONString(pointToTokenDto));
+		
+		pointToTokenDto.setAmount(Convert.toWei(pointToTokenDto.getAmount(), Convert.Unit.ETHER).toBigInteger().toString());
+		
+		Function function = new Function(
+				 	Bankroll_sol_BankRoll.FUNC_POINTTOTOKEN, 
+	                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Uint256(pointToTokenDto.getBusinessId()), 
+	                new org.web3j.abi.datatypes.Address(pointToTokenDto.getTradePerson()), 
+	                new org.web3j.abi.datatypes.generated.Uint256(new BigInteger(pointToTokenDto.getAmount()))), 
+	                Collections.<TypeReference<?>>emptyList());
+		
+		BigInteger gasPrice = getGasPrice();
+		BigInteger gasLimit = getGasLimit(function, pointToTokenDto.getAdminAddress(), bankroll_sol_BankRoll.getContractAddress(), ContractEum.WITH_DRAW.getName());
+				
+//				getGasLimit(function, pointToTokenDto.getAdminAddress(), bankroll_sol_BankRoll.getContractAddress());
+		
+		if(gasPrice.compareTo(gasPriceMax) > 0){
+			throw new SkcoinException(ErrorCodeEum.ETH_GASPRICE_HIGH);
+		}
+		
+		BigInteger gasFee = gasPrice.multiply(gasLimit);
+		
+		//得到管理员的余额
+		BigInteger balance = getEthBalanceWei(pointToTokenDto.getAdminAddress());
+		
+		if(balance.compareTo(gasFee) < 0 ){
+			throw new SkcoinException(ErrorCodeEum.ETH_BALANCE_NOT_ENOUGH);
+		}
+		
+		Credentials credentials = Credentials.create(pointToTokenDto.getAdminPrikey());
+		Bankroll_sol_BankRoll bank = Bankroll_sol_BankRoll.load(bankroll_sol_BankRoll.getContractAddress(), web3j, credentials, gasPrice, gasLimit);
+		
+		try {
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						TransactionReceipt transactionReceipt = bank.pointToToken(new BigInteger(pointToTokenDto.getBusinessId().toString()), pointToTokenDto.getTradePerson(), new BigInteger(pointToTokenDto.getAmount())).send();
+						if(transactionReceipt !=null && transactionReceipt.isStatusOK()){
+							
+							List<PointToTokenEventEventResponse> pointToTokenList = bank.getPointToTokenEventEvents(transactionReceipt);
+							Long businessId = null;
+							if(pointToTokenList != null && pointToTokenList.size() > 0){
+								businessId = pointToTokenList.get(0)._id.longValue();
+							}
+							contractOperationMapper.insert(ContractOperation.builder()
+									.businessId(businessId)
+									.name(ContractEum.WITH_DRAW.getName())
+									.blockHash(transactionReceipt.getBlockHash())
+									.blockNumber(transactionReceipt.getBlockNumber().longValue())
+									.createDate(new Date())
+									.data(JSON.toJSONString(pointToTokenDto))
+									.operationPerson(transactionReceipt.getFrom())
+									.toPerson(transactionReceipt.getTo())
+									.transcationHash(transactionReceipt.getTransactionHash())
+									.gas(transactionReceipt.getGasUsed().longValue())
+									.status(TrascationStatusEum.SUCCESS_STATUS.getStatus().shortValue())
+									.build());
+						}
+					
+					} catch (Exception e) {
+						//加入失败操作
+						contractOperationMapper.insert(ContractOperation.builder()
+								.businessId(pointToTokenDto.getBusinessId())
+								.name(ContractEum.WITH_DRAW.getName())
+								.blockHash(null)
+								.blockNumber(null)
+								.createDate(new Date())
+								.data(JSON.toJSONString(pointToTokenDto))
+								.operationPerson(pointToTokenDto.getAdminAddress())
+								.toPerson(pointToTokenDto.getTradePerson())
+								.transcationHash(null)
+								.gas(null)
+								.status(TrascationStatusEum.FAIL_STATUS.getStatus().shortValue())
+								.errorMsg(e.getMessage())
+								.build());
+						//失败
+						exchangeCoinsService.insertExchangeCoins(ExchangeCoins.builder()
+								.businessId(pointToTokenDto.getBusinessId())
+								.transcationHash(System.currentTimeMillis()+"")
+								.createDate(new Date())
+								.eventName(EventNameEum.WITHDRAW_EVENT.getName())
+								.currency((short)2)
+								.status(TrascationStatusEum.FAIL_STATUS.getStatus().shortValue())
+								.isCall((short)0)
+								.tradePerson(pointToTokenDto.getTradePerson())
+								.build());
+						e.printStackTrace();
+					}
+				}
+			}).start();
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public Boolean setTestTotalSupply(String tokenSupply){
+		Boolean ret = false;
+		try {
+			TransactionReceipt transactionReceipt = skcoin_sol_Skcoin.setTestTotalSupply(new BigInteger(tokenSupply)).send();
+			if(transactionReceipt!=null && transactionReceipt.isStatusOK()){
+				ret = true;
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ret;
+	}
+	
+	/**
+	 * 获取燃油
+	 * @param function
+	 * @param adminAddress
+	 * @param type 0: skcoin  1: bankroll
+	 * @return
+	 */
+	public BigInteger getGasLimit(Function function,String adminAddress,String contractAddress,String contractName){
+		
+		BigInteger gasLimit = null;
+		
+		EthEstimateGas ethEstimateGas = null;
+		try {
+			ethEstimateGas = web3j.ethEstimateGas(Transaction.createEthCallTransaction(adminAddress, contractAddress, FunctionEncoder.encode(function))).send();
+			if(ethEstimateGas != null){
+				BigDecimal gasUp = new BigDecimal(ethEstimateGas.getAmountUsed()).multiply(new BigDecimal("0.1"));
+				gasLimit = ethEstimateGas.getAmountUsed().add(gasUp.toBigInteger()) ;
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		 if(gasLimit == null) {
+			List<SysConfig> list = sysConfigMapper.select(SysConfig.builder().type((short)2).status((short)1).typeName(contractName).build());
+			if(list != null && list.size() > 0){
+				gasLimit = new BigInteger(list.get(0).getValue());
+			}
+		}
+		
+		return gasLimit;
+	}
+	
+	/**
+	 * 获取当时单价
+	 * @return
+	 */
+	public BigInteger getGasPrice(){
+		BigInteger gasPrice = null;
+		try {
+			EthGasPrice ethGasPrice = web3j.ethGasPrice().send();
+			if(ethGasPrice != null ){
+				gasPrice = ethGasPrice.getGasPrice();
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return gasPrice;
 	}
 	
 }

@@ -3,15 +3,12 @@
  */
 package com.softisland.service;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.web3j.utils.Convert;
 
 import com.alibaba.fastjson.JSON;
 import com.softisland.bean.domian.SoftHttpResponse;
@@ -22,7 +19,6 @@ import com.softisland.model.ExchangeCoins;
 import com.softisland.model.SysConfig;
 import com.softisland.model.TranscationEvent;
 import com.softisland.vo.Message;
-import com.softisland.vo.TranscationEventVo;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,7 +42,9 @@ public class CallBackService {
 	ContractService contractService;
 	
 	
-	
+	/**
+	 * 
+	 */
 	public void bankRollCallBack(){
 		
 		List<SysConfig> confList = sysConfigMapper.select(SysConfig.builder().type((short)1).status((short)1).build());
@@ -61,13 +59,19 @@ public class CallBackService {
 			
 			list.forEach(v->{
 				try {
-					SoftHttpResponse response = OKHttpClientUtil.postJsonDataToUrl(sysConfig.getValue(), JSON.toJSONString(Message.builder()
+					
+					Message message = Message.builder()
 					.ret(Message.SUCCESS)
 					.code("200")
 					.msg("成功")
 					.data(contractService.getTranscationEventVo(v))
-					.build()));
+					.build();
+					
+					SoftHttpResponse response = OKHttpClientUtil.postJsonDataToUrl(sysConfig.getValue(), JSON.toJSONString(message));
+					
+					log.info("bankroll 回调内容({})",JSON.toJSONString(message));
 					if(response!=null && response.getStatus() == 200){
+						
 						exchangeCoinsService.updateExchangeCoins(ExchangeCoins.builder()
 								.id(v.getId())
 								.isCall((short)1)
@@ -80,6 +84,9 @@ public class CallBackService {
 			});
 	}
 	
+	/**
+	 * 
+	 */
 	public void skcoinCallBack(){
 		
 		List<SysConfig> confList = sysConfigMapper.select(SysConfig.builder().type((short)1).status((short)1).build());
@@ -116,6 +123,9 @@ public class CallBackService {
 		});
 	}
 	
+	/**
+	 * 
+	 */
 	public void bonusCallBack(){
 		List<SysConfig> confList = sysConfigMapper.select(SysConfig.builder().type((short)1).status((short)1).build());
 		
@@ -137,7 +147,7 @@ public class CallBackService {
 			
 			try {
 				SoftHttpResponse response = OKHttpClientUtil.postJsonDataToUrl(sysConfig.getValue(), JSON.toJSONString(message));
-				
+				log.info("bonus分红 回调内容({})",JSON.toJSONString(message));
 				if(response!=null && response.getStatus() == 200){
 					
 					transcationEventService.updateBonusEvent(BonusEvent.builder()

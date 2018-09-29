@@ -7,7 +7,7 @@ import java.util.Date;
 
 import com.softisland.config.EventNameEum;
 import com.softisland.config.TrascationStatusEum;
-import com.softisland.contract.Skcoin_sol_Skcoin.AssetsDetailEventResponse;
+import com.softisland.contract.Skcoin_sol_Skcoin.BoughtAssetsDetailEventResponse;
 import com.softisland.contract.Skcoin_sol_Skcoin.OnTokenPurchaseEventResponse;
 import com.softisland.contract.Skcoin_sol_Skcoin.OnTokenSellEventResponse;
 import com.softisland.model.BonusEvent;
@@ -71,9 +71,8 @@ public class SkCoinEventHandler<T> implements Runnable{
 						.divChoice(v.divRate.toString())
 						.build());
 				
-			}else if (t instanceof AssetsDetailEventResponse){
-				AssetsDetailEventResponse v = (AssetsDetailEventResponse)t;
-				
+			}else if (t instanceof BoughtAssetsDetailEventResponse){
+				BoughtAssetsDetailEventResponse v = (BoughtAssetsDetailEventResponse)t;
 				transcationEventService.insertBonusEvent(BonusEvent.builder()
 						.blockHash(v.log.getBlockHash())
 						.blockNumber(v.log.getBlockNumber().longValue())

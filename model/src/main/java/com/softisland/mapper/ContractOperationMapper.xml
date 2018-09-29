@@ -17,5 +17,6 @@
     <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
     <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" />
     <result column="data" property="data" jdbcType="LONGVARCHAR" />
+    <result column="error_msg" property="errorMsg" jdbcType="LONGVARCHAR" />
   </resultMap>
 </mapper>

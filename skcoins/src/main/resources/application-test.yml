@@ -75,7 +75,7 @@ contract:
     adminPrikey: 
   skcoin: 
     masterPrikey: !!str ceda59b2b97439952bb3c481123bc197ef2591b83ccf4686ee220d1cdc55519c
-    contractAddress: !!str 0xe986CD08DecEd90E57D3fbEffC6421eFc1a3C401
+    contractAddress: !!str 0x1e7fA01692b87935729307beEf90d77f67E3Da5e
     adminPrikey: 
     
   

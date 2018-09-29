@@ -8,20 +8,17 @@ import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.DefaultBlockParameterName;
-import org.web3j.protocol.core.methods.response.EthBlock;
 import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
+import org.web3j.protocol.core.methods.response.EthTransaction;
+import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
-import org.web3j.tx.Contract;
 
 import com.alibaba.fastjson.JSON;
 import com.softisland.bean.utils.JRedisUtils;
@@ -29,12 +26,9 @@ import com.softisland.config.EventNameEum;
 import com.softisland.config.RedisKeyConfig;
 import com.softisland.config.TrascationStatusEum;
 import com.softisland.contract.Bankroll_sol_BankRoll;
-import com.softisland.contract.Small_sol_small;
 import com.softisland.handler.CommonHandler;
 import com.softisland.handler.ExchangeCoinsEventHandler;
-import com.softisland.handler.RecordEventHandler;
 import com.softisland.model.ExchangeCoins;
-import com.softisland.model.TranscationEvent;
 import com.softisland.service.ExchangeCoinsService;
 import com.softisland.service.TranscationEventService;
 
@@ -165,26 +159,36 @@ public class BankRollContractListener {
 		
 		for(ExchangeCoins v : transcationEventList){
 			try {
+				
+				EthTransaction ethTransaction = web3j.ethGetTransactionByHash(v.getTranscationHash()).send();
+				
+				Transaction transaction = ethTransaction.getResult();
+				
+				BigInteger gasPrice = null;
+				//消耗的手续费 = gasused * gasprice
+				if(transaction != null){
+					gasPrice = transaction.getGasPrice();
+				}
+				
 				EthGetTransactionReceipt ethGetTransactionReceipt = web3j.ethGetTransactionReceipt(v.getTranscationHash()).send();
 				
 				TransactionReceipt transactionReceipt = ethGetTransactionReceipt.getResult();
-				
-				
 				int ret = 0 ;
 				if(transactionReceipt != null && transactionReceipt.isStatusOK()){
 					ret = exchangeCoinsService.updateExchangeCoinsEvent(ExchangeCoins.builder()
 							.id(v.getId())
 							.status(TrascationStatusEum.SUCCESS_STATUS.getStatus().shortValue())
 							.updateDate(new Date())
-							.gas(transactionReceipt.getGasUsed().toString())
+							.gas(gasPrice != null ? transactionReceipt.getGasUsed().multiply(gasPrice).toString() : null)
 							.confirmBlockNum(nowBlockNumber.longValue())
 							.build(), null);
 				} else {
+					
 					 ret = exchangeCoinsService.updateExchangeCoinsEvent(ExchangeCoins.builder()
 							.id(v.getId())
 							.status(TrascationStatusEum.FAIL_STATUS.getStatus().shortValue())
 							.updateDate(new Date())
-							.gas(transactionReceipt.getGasUsed().toString())
+							.gas(gasPrice != null ? transactionReceipt.getGasUsed().multiply(gasPrice).toString() : null)
 							.confirmBlockNum(nowBlockNumber.longValue())
 							.build(), 1);
 				}

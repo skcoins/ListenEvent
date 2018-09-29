@@ -50,6 +50,9 @@ public class ContractOperation implements Serializable {
     private Date updateDate;
 
     private String data;
+    
+    @Column(name = "error_msg")
+    private String errorMsg;
 
     private static final long serialVersionUID = 1L;
 
