@@ -25,7 +25,7 @@ public class CryptoUtils {
      * @param address
      * @return
      */
-    public static String validate(String signature, String message) {
+    public static Boolean validate(String signature, String message, String address) {
         //参考 eth_sign in https://github.com/ethereum/wiki/wiki/JSON-RPC
         // eth_sign
         // The sign method calculates an Ethereum specific signature with:
@@ -60,10 +60,15 @@ public class CryptoUtils {
 
             if (publicKey != null) {
                 addressRecovered = "0x" + Keys.getAddress(publicKey);
-                return addressRecovered;
+
+                if (addressRecovered.equals(address)) {
+                    return true;
+                }
             }
+
         }
-        return null;
+        return false;
     }
 
+   
 }

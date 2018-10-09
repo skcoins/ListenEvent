@@ -36,12 +36,8 @@ public class SignController {
 				.build();
 		
 		try {
-			String address = CryptoUtils.validate(signDto.getSignedHash(), signDto.getMessage());
-			if(address.equals(signDto.getAddress())){
-				message.setData(true);
-			}else{
-				message.setData(false);
-			}
+			Boolean flag = CryptoUtils.validate(signDto.getSignedHash(), signDto.getMessage(), signDto.getAddress());
+			message.setData(flag);
 			
 		} catch (Exception e) {
 			message.setRet(Message.FAILED);
