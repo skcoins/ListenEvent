@@ -15,7 +15,7 @@ public interface ExchangeCoinsMapper extends MyBaseMapper<ExchangeCoins> {
 	public Long getMaxBlockNumber();
 	
 	
-	@Select("select * from `exchange_coins` where status = 0 and block_number + 12 <= #{nowBlockNumber}")
+	@Select("select * from `exchange_coins` where status = #{status} and block_number + 12 <= #{nowBlockNumber}")
 	@ResultMap("BaseResultMap")
-	public List<ExchangeCoins> queryDefaultExchangeCoins(@Param("nowBlockNumber") Long nowBlockNumber);
+	public List<ExchangeCoins> queryDefaultExchangeCoins(@Param("status") Integer status,@Param("nowBlockNumber") Long nowBlockNumber);
 }

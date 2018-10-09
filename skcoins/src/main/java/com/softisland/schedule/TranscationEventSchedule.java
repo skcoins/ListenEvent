@@ -9,7 +9,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.softisland.listener.ContractListener;
+import com.softisland.listener.BankRollContractListener;
+import com.softisland.listener.SkCoinContractListener;
+import com.softisland.service.CallBackService;
 
 /**
  * @author Administrator
@@ -21,16 +23,32 @@ import com.softisland.listener.ContractListener;
 public class TranscationEventSchedule {
 
 	@Autowired
-	ContractListener contractListener;
+	BankRollContractListener bankRollContractListener;
+	
+	@Autowired
+	SkCoinContractListener skCoinContractListener;
+	
+	@Autowired
+	CallBackService callBackService;
 	
 	
 	@Scheduled(fixedDelay=1000*10,initialDelay=1000*5)
     public void confirmEvent(){
-		contractListener.confirmEvent();
+		skCoinContractListener.confirmEvent();
 	}
 	
 	@Scheduled(fixedDelay=1000*10,initialDelay=1000*5)
     public void confirmExchangeEvent(){
-		contractListener.confirmExchangeEvent();
+		bankRollContractListener.confirmExchangeEvent();
+	}
+	
+	@Scheduled(fixedDelay=1000*10,initialDelay=1000*5)
+    public void bankRollCallBack(){
+		callBackService.bankRollCallBack();
+	}
+	
+	@Scheduled(fixedDelay=1000*10,initialDelay=1000*5)
+    public void skcoinCallBack(){
+		callBackService.skcoinCallBack();
 	}
 }

@@ -9,9 +9,9 @@ package com.softisland.config;
  */
 public enum TrascationStatusEum {
 
-	DEFAULT_STATUS(0,"初始化状态"),
+	DEFAULT_STATUS(2,"初始化状态"),
 	SUCCESS_STATUS(1,"完成状态"),
-	FAIL_STATUS(2,"失败状态");
+	FAIL_STATUS(0,"失败状态");
 	
 	private Integer status;
 	private String msg;

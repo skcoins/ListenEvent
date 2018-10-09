@@ -19,8 +19,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LedgerDto {
+	
+	private String adminAddress;
+	private String adminPrikey;
 
-	private String serialNumber;
+	private Long businessId;
 	
 	private Long dateTime;
 	

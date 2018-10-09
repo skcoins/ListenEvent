@@ -5,6 +5,13 @@
 *.class
 /log/
 
+skcoins/target/
+skcoins/.classpath
+.project
+skcoins/.settings/
+skcoins/*.class
+skcoins/log/
+
 model/target/
 model/.classpath
 model/.project

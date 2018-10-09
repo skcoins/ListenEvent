@@ -6,16 +6,16 @@
       WARNING - @mbg.generated
     -->
     <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="business_id" property="businessId" jdbcType="BIGINT" />
     <result column="block_number" property="blockNumber" jdbcType="BIGINT" />
     <result column="transcation_hash" property="transcationHash" jdbcType="VARCHAR" />
     <result column="block_hash" property="blockHash" jdbcType="VARCHAR" />
-    <result column="from_person" property="fromPerson" jdbcType="VARCHAR" />
-    <result column="to_person" property="toPerson" jdbcType="VARCHAR" />
+    <result column="trade_person" property="tradePerson" jdbcType="VARCHAR" />
     <result column="nums" property="nums" jdbcType="BIGINT" />
     <result column="currency" property="currency" jdbcType="SMALLINT" />
     <result column="event_name" property="eventName" jdbcType="VARCHAR" />
     <result column="status" property="status" jdbcType="SMALLINT" />
-    <result column="gas" property="gas" jdbcType="BIGINT" />
+    <result column="gas" property="gas" jdbcType="VARCHAR" />
     <result column="confirm_block_num" property="confirmBlockNum" jdbcType="BIGINT" />
     <result column="is_call" property="isCall" jdbcType="SMALLINT" />
     <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />

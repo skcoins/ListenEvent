@@ -9,10 +9,11 @@ import org.web3j.abi.EventEncoder;
 import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Address;
+import org.web3j.abi.datatypes.Bool;
+import org.web3j.abi.datatypes.DynamicArray;
 import org.web3j.abi.datatypes.Event;
 import org.web3j.abi.datatypes.Function;
 import org.web3j.abi.datatypes.Type;
-import org.web3j.abi.datatypes.Utf8String;
 import org.web3j.abi.datatypes.generated.Uint256;
 import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
@@ -36,13 +37,15 @@ import rx.functions.Func1;
  * <p>Generated with web3j version 3.5.0.
  */
 public class Bankroll_sol_BankRoll extends Contract {
-    private static final String BINARY = "608060405234801561001057600080fd5b5060405160208061088c833981016040525160008054600160a060020a0319908116331790915560018054600160a060020a039093169290911691909117905561082d8061005f6000396000f3006080604052600436106100ae5763ffffffff7c01000000000000000000000000000000000000000000000000000000006000350416630bb3a06681146100b35780631e9a69501461010a5780632a0daeea1461014257806347e201831461016957806356d597771461018a5780636b931cad146101df5780638da5cb5b14610206578063c21a231514610237578063d5a01ffc1461025b578063d731f34214610270578063f3fef3a31461037a575b600080fd5b3480156100bf57600080fd5b50604080516020600480358082013583810280860185019096528085526101089536959394602494938501929182918501908490808284375094975061039e9650505050505050565b005b34801561011657600080fd5b5061012e600160a060020a0360043516602435610415565b604080519115158252519081900360200190f35b34801561014e57600080fd5b50610157610457565b60408051918252519081900360200190f35b34801561017557600080fd5b50610157600160a060020a036004351661045d565b34801561019657600080fd5b5060408051602060048035808201358381028086018501909652808552610108953695939460249493850192918291850190849080828437509497506104789650505050505050565b3480156101eb57600080fd5b50610108600160a060020a03600435811690602435166104eb565b34801561021257600080fd5b5061021b61053d565b60408051600160a060020a039092168252519081900360200190f35b34801561024357600080fd5b5061012e600160a060020a036004351660243561054c565b34801561026757600080fd5b5061021b6105a5565b34801561027c57600080fd5b5060408051602060046024803582810135848102808701860190975280865261010896843596369660449591949091019291829185019084908082843750506040805187358901803560208181028481018201909552818452989b9a998901989297509082019550935083925085019084908082843750506040805187358901803560208181028481018201909552818452989b9a99890198929750908201955093508392508501908490808284375050604080516020601f89358b018035918201839004830284018301909452808352979a9998810197919650918201945092508291508401838280828437509497506105b49650505050505050565b34801561038657600080fd5b5061012e600160a060020a036004351660243561078e565b60008054600160a060020a031633146103b657600080fd5b5060005b81518110156104115760006003600084848151811015156103d757fe5b602090810291909101810151600160a060020a03168252810191909152604001600020805460ff19169115159190911790556001016103ba565b5050565b60008183600160a060020a03167fe497990cbcdad216d0cee0a47bdd46928c6ec37dcefc927dc4bd3c16e623a86d60405160405180910390a350600192915050565b60045481565b600160a060020a031660009081526002602052604090205490565b60008054600160a060020a0316331461049057600080fd5b5060005b81518110156104115760016003600084848151811015156104b157fe5b602090810291909101810151600160a060020a03168252810191909152604001600020805460ff1916911515919091179055600101610494565b600054600160a060020a0316331461050257600080fd5b600160a060020a03918216600090815260036020526040808220805460ff199081169091559290931681529190912080549091166001179055565b600054600160a060020a031681565b600154600090600160a060020a0316331461056657600080fd5b6040518290600160a060020a038516907fe497990cbcdad216d0cee0a47bdd46928c6ec37dcefc927dc4bd3c16e623a86d90600090a350600192915050565b600154600160a060020a031681565b60008054600160a060020a03163314806105dd57503360009081526003602052604090205460ff165b15156105e857600080fd5b83518551146105f657600080fd5b825184511461060457600080fd5b50600485905560005b845181101561078657828181518110151561062457fe5b9060200190602002015160026000878481518110151561064057fe5b90602001906020020151600160a060020a0316600160a060020a03168152602001908152602001600020819055507f8fece7425d1df78407c08e77378d4912cb50cbd965d2f9ee8efb9a3cf5573ed786868381518110151561069e57fe5b9060200190602002015186848151811015156106b657fe5b9060200190602002015186858151811015156106ce57fe5b90602001906020020151866040518086815260200185600160a060020a0316600160a060020a0316815260200184815260200183815260200180602001828103825283818151815260200191508051906020019080838360005b83811015610740578181015183820152602001610728565b50505050905090810190601f16801561076d5780820380516001836020036101000a031916815260200191505b50965050505050505060405180910390a160010161060d565b505050505050565b60008054600160a060020a03163314806107b757503360009081526003602052604090205460ff165b15156107c257600080fd5b6040518290600160a060020a038516907f87d5f4772963d1f9b76047158b4ae97c420a1b3bff2a746c828beffd9e7c3e2690600090a3506001929150505600a165627a7a723058201cf4537dd62e5977eb7d467c2007d81ded195b7f8e5b5cae6f0a61ef29f5305d0029";
+    private static final String BINARY = "608060405234801561001057600080fd5b50604051602080610a25833981016040525160008054600160a060020a0319908116331790915560018054600160a060020a03909316929091169190911790556109c68061005f6000396000f3006080604052600436106100a05763ffffffff60e060020a60003504166304b5b5b681146100a55780630549f150146100e05780630bb3a066146101015780630bc32ab61461015857806347e201831461017f57806356d59777146101b25780636b931cad146102075780638da5cb5b1461022e578063b69a81071461025f578063bf20855914610280578063d5a01ffc1461034c578063e030bbd514610361575b600080fd5b3480156100b157600080fd5b506100cc600435600160a060020a036024351660443561037c565b604080519115158252519081900360200190f35b3480156100ec57600080fd5b506100cc600160a060020a0360043516610490565b34801561010d57600080fd5b5060408051602060048035808201358381028086018501909652808552610156953695939460249493850192918291850190849080828437509497506104c79650505050505050565b005b34801561016457600080fd5b506100cc600435600160a060020a036024351660443561053e565b34801561018b57600080fd5b506101a0600160a060020a036004351661056b565b60408051918252519081900360200190f35b3480156101be57600080fd5b5060408051602060048035808201358381028086018501909652808552610156953695939460249493850192918291850190849080828437509497506105869650505050505050565b34801561021357600080fd5b50610156600160a060020a03600435811690602435166105f9565b34801561023a57600080fd5b5061024361064b565b60408051600160a060020a039092168252519081900360200190f35b34801561026b57600080fd5b50610156600160a060020a036004351661065a565b34801561028c57600080fd5b5060408051602060046024803582810135848102808701860190975280865261015696843596369660449591949091019291829185019084908082843750506040805187358901803560208181028481018201909552818452989b9a998901989297509082019550935083925085019084908082843750506040805187358901803560208181028481018201909552818452989b9a9989019892975090820195509350839250850190849080828437509497506106a09650505050505050565b34801561035857600080fd5b50610243610872565b34801561036d57600080fd5b506100cc600435602435610881565b600080548190600160a060020a03163314806103a757503360009081526003602052604090205460ff165b15156103b257600080fd5b600154604080517f7472616e7366657228616464726573732c75696e7432353629000000000000008152815190819003601901812063ffffffff60e060020a918290049081169091028252600160a060020a0388811660048401526024830188905292519290931692916044808301926000929190829003018183875af192505050905080151561044257600080fd5b60408051868152602081018590528151600160a060020a038716927f81c292b70d9deca02d4e4aa3ffdb4797a8f96803a6f2e62b2ebb870903b35ef8928290030190a2506001949350505050565b60008054600160a060020a031633146104a857600080fd5b50600160a060020a031660009081526003602052604090205460ff1690565b60008054600160a060020a031633146104df57600080fd5b5060005b815181101561053a57600060036000848481518110151561050057fe5b602090810291909101810151600160a060020a03168252810191909152604001600020805460ff19169115159190911790556001016104e3565b5050565b600154600090600160a060020a0316331461055857600080fd5b610563848484610895565b949350505050565b600160a060020a031660009081526002602052604090205490565b60008054600160a060020a0316331461059e57600080fd5b5060005b815181101561053a5760016003600084848151811015156105bf57fe5b602090810291909101810151600160a060020a03168252810191909152604001600020805460ff19169115159190911790556001016105a2565b600054600160a060020a0316331461061057600080fd5b600160a060020a03918216600090815260036020526040808220805460ff199081169091559290931681529190912080549091166001179055565b600054600160a060020a031681565b600054600160a060020a0316331461067157600080fd5b6001805473ffffffffffffffffffffffffffffffffffffffff1916600160a060020a0392909216919091179055565b60008054600160a060020a03163314806106c957503360009081526003602052604090205460ff165b15156106d457600080fd5b83516101f410156106e457600080fd5b82518451146106f257600080fd5b815183511461070057600080fd5b5060005b835181101561076257818181518110151561071b57fe5b9060200190602002015160026000868481518110151561073757fe5b6020908102909101810151600160a060020a0316825281019190915260400160002055600101610704565b7fbb2f3391a5c9021982a64c2c35d7250435b574f09c0b27ed884f39a16fc7ac458585858560405180858152602001806020018060200180602001848103845287818151815260200191508051906020019060200280838360005b838110156107d55781810151838201526020016107bd565b50505050905001848103835286818151815260200191508051906020019060200280838360005b838110156108145781810151838201526020016107fc565b50505050905001848103825285818151815260200191508051906020019060200280838360005b8381101561085357818101518382015260200161083b565b5050505090500197505050505050505060405180910390a15050505050565b600154600160a060020a031681565b600061088e833384610895565b9392505050565b600154604080517f72656465656d47616d65506f696e747328616464726573732c75696e7432353681527f29000000000000000000000000000000000000000000000000000000000000006020820152815190819003602101812063ffffffff60e060020a918290049081169091028252600160a060020a038681166004840152602483018690529251600094859416926044808201928692909190829003018183875af192505050905080151561094c57600080fd5b60408051868152602081018590528151600160a060020a038716927fa62dfe64893408597f284008da6ea2dabf0d823f951f46c27f3aba1d5494ce4f928290030190a25060019493505050505600a165627a7a72305820bacad8f28e8f2f989beca94d6faa1e3f53a230f311a27b82d225781ce353bdd10029";
+
+    public static final String FUNC_POINTTOTOKEN = "pointToToken";
+
+    public static final String FUNC_GETADMINISTRATOR = "getAdministrator";
 
     public static final String FUNC_UNSETADMINISTRATOR = "unsetAdministrator";
 
-    public static final String FUNC_REDEEM = "redeem";
-
-    public static final String FUNC_SERIALNUMBER = "serialNumber";
+    public static final String FUNC_TOKENTOPOINTBYSKCCONTRACT = "tokenToPointBySkcContract";
 
     public static final String FUNC_POINT = "point";
 
@@ -52,24 +55,24 @@ public class Bankroll_sol_BankRoll extends Contract {
 
     public static final String FUNC_OWNER = "owner";
 
-    public static final String FUNC_ETH_REDEEM = "eth_redeem";
-
-    public static final String FUNC_SKCADDRESS = "skcAddress";
+    public static final String FUNC_SETSKCADDERSS = "setSkcAdderss";
 
     public static final String FUNC_UPDATELEDGER = "updateLedger";
 
-    public static final String FUNC_WITHDRAW = "withdraw";
+    public static final String FUNC_SKCADDRESS = "skcAddress";
 
-    public static final Event REDEEMEVENT_EVENT = new Event("redeemEvent", 
-            Arrays.<TypeReference<?>>asList(new TypeReference<Address>(true) {}, new TypeReference<Uint256>(true) {}));
+    public static final String FUNC_TOKENTOPOINTBYMETAMASK = "tokenToPointByMetaMask";
+
+    public static final Event TOKENTOPOINTEVENT_EVENT = new Event("tokenToPointEvent", 
+            Arrays.<TypeReference<?>>asList(new TypeReference<Uint256>() {}, new TypeReference<Address>(true) {}, new TypeReference<Uint256>() {}));
     ;
 
-    public static final Event WITHDRAWEVENT_EVENT = new Event("withdrawEvent", 
-            Arrays.<TypeReference<?>>asList(new TypeReference<Address>(true) {}, new TypeReference<Uint256>(true) {}));
+    public static final Event POINTTOTOKENEVENT_EVENT = new Event("pointToTokenEvent", 
+            Arrays.<TypeReference<?>>asList(new TypeReference<Uint256>() {}, new TypeReference<Address>(true) {}, new TypeReference<Uint256>() {}));
     ;
 
     public static final Event LEDGERRECORDEVENT_EVENT = new Event("ledgerRecordEvent", 
-            Arrays.<TypeReference<?>>asList(new TypeReference<Uint256>() {}, new TypeReference<Address>() {}, new TypeReference<Uint256>() {}, new TypeReference<Uint256>() {}, new TypeReference<Utf8String>() {}));
+            Arrays.<TypeReference<?>>asList(new TypeReference<Uint256>() {}, new TypeReference<DynamicArray<Address>>() {}, new TypeReference<DynamicArray<Uint256>>() {}, new TypeReference<DynamicArray<Uint256>>() {}));
     ;
 
     protected Bankroll_sol_BankRoll(String contractAddress, Web3j web3j, Credentials credentials, BigInteger gasPrice, BigInteger gasLimit) {
@@ -78,6 +81,23 @@ public class Bankroll_sol_BankRoll extends Contract {
 
     protected Bankroll_sol_BankRoll(String contractAddress, Web3j web3j, TransactionManager transactionManager, BigInteger gasPrice, BigInteger gasLimit) {
         super(BINARY, contractAddress, web3j, transactionManager, gasPrice, gasLimit);
+    }
+
+    public RemoteCall<TransactionReceipt> pointToToken(BigInteger _id, String _withdrawer, BigInteger _amount) {
+        final Function function = new Function(
+                FUNC_POINTTOTOKEN, 
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Uint256(_id), 
+                new org.web3j.abi.datatypes.Address(_withdrawer), 
+                new org.web3j.abi.datatypes.generated.Uint256(_amount)), 
+                Collections.<TypeReference<?>>emptyList());
+        return executeRemoteCallTransaction(function);
+    }
+
+    public RemoteCall<Boolean> getAdministrator(String adr) {
+        final Function function = new Function(FUNC_GETADMINISTRATOR, 
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(adr)), 
+                Arrays.<TypeReference<?>>asList(new TypeReference<Bool>() {}));
+        return executeRemoteCallSingleValueReturn(function, Boolean.class);
     }
 
     public RemoteCall<TransactionReceipt> unsetAdministrator(List<String> _administrators) {
@@ -89,20 +109,14 @@ public class Bankroll_sol_BankRoll extends Contract {
         return executeRemoteCallTransaction(function);
     }
 
-    public RemoteCall<TransactionReceipt> redeem(String _caller, BigInteger _amount) {
+    public RemoteCall<TransactionReceipt> tokenToPointBySkcContract(BigInteger _id, String _recharger, BigInteger _amount) {
         final Function function = new Function(
-                FUNC_REDEEM, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(_caller), 
+                FUNC_TOKENTOPOINTBYSKCCONTRACT, 
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Uint256(_id), 
+                new org.web3j.abi.datatypes.Address(_recharger), 
                 new org.web3j.abi.datatypes.generated.Uint256(_amount)), 
                 Collections.<TypeReference<?>>emptyList());
         return executeRemoteCallTransaction(function);
-    }
-
-    public RemoteCall<BigInteger> serialNumber() {
-        final Function function = new Function(FUNC_SERIALNUMBER, 
-                Arrays.<Type>asList(), 
-                Arrays.<TypeReference<?>>asList(new TypeReference<Uint256>() {}));
-        return executeRemoteCallSingleValueReturn(function, BigInteger.class);
     }
 
     public RemoteCall<BigInteger> point(String who) {
@@ -137,11 +151,24 @@ public class Bankroll_sol_BankRoll extends Contract {
         return executeRemoteCallSingleValueReturn(function, String.class);
     }
 
-    public RemoteCall<TransactionReceipt> eth_redeem(String _caller, BigInteger _amount) {
+    public RemoteCall<TransactionReceipt> setSkcAdderss(String _skcAddress) {
         final Function function = new Function(
-                FUNC_ETH_REDEEM, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(_caller), 
-                new org.web3j.abi.datatypes.generated.Uint256(_amount)), 
+                FUNC_SETSKCADDERSS, 
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(_skcAddress)), 
+                Collections.<TypeReference<?>>emptyList());
+        return executeRemoteCallTransaction(function);
+    }
+
+    public RemoteCall<TransactionReceipt> updateLedger(BigInteger _id, List<String> _address, List<BigInteger> _oldPionts, List<BigInteger> _newPoints) {
+        final Function function = new Function(
+                FUNC_UPDATELEDGER, 
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Uint256(_id), 
+                new org.web3j.abi.datatypes.DynamicArray<org.web3j.abi.datatypes.Address>(
+                        org.web3j.abi.Utils.typeMap(_address, org.web3j.abi.datatypes.Address.class)), 
+                new org.web3j.abi.datatypes.DynamicArray<org.web3j.abi.datatypes.generated.Uint256>(
+                        org.web3j.abi.Utils.typeMap(_oldPionts, org.web3j.abi.datatypes.generated.Uint256.class)), 
+                new org.web3j.abi.datatypes.DynamicArray<org.web3j.abi.datatypes.generated.Uint256>(
+                        org.web3j.abi.Utils.typeMap(_newPoints, org.web3j.abi.datatypes.generated.Uint256.class))), 
                 Collections.<TypeReference<?>>emptyList());
         return executeRemoteCallTransaction(function);
     }
@@ -153,25 +180,10 @@ public class Bankroll_sol_BankRoll extends Contract {
         return executeRemoteCallSingleValueReturn(function, String.class);
     }
 
-    public RemoteCall<TransactionReceipt> updateLedger(BigInteger _serialNumber, List<String> _address, List<BigInteger> _oldPionts, List<BigInteger> _newPoints, String datetime) {
+    public RemoteCall<TransactionReceipt> tokenToPointByMetaMask(BigInteger _id, BigInteger _amount) {
         final Function function = new Function(
-                FUNC_UPDATELEDGER, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Uint256(_serialNumber), 
-                new org.web3j.abi.datatypes.DynamicArray<org.web3j.abi.datatypes.Address>(
-                        org.web3j.abi.Utils.typeMap(_address, org.web3j.abi.datatypes.Address.class)), 
-                new org.web3j.abi.datatypes.DynamicArray<org.web3j.abi.datatypes.generated.Uint256>(
-                        org.web3j.abi.Utils.typeMap(_oldPionts, org.web3j.abi.datatypes.generated.Uint256.class)), 
-                new org.web3j.abi.datatypes.DynamicArray<org.web3j.abi.datatypes.generated.Uint256>(
-                        org.web3j.abi.Utils.typeMap(_newPoints, org.web3j.abi.datatypes.generated.Uint256.class)), 
-                new org.web3j.abi.datatypes.Utf8String(datetime)), 
-                Collections.<TypeReference<?>>emptyList());
-        return executeRemoteCallTransaction(function);
-    }
-
-    public RemoteCall<TransactionReceipt> withdraw(String _caller, BigInteger _amount) {
-        final Function function = new Function(
-                FUNC_WITHDRAW, 
-                Arrays.<Type>asList(new org.web3j.abi.datatypes.Address(_caller), 
+                FUNC_TOKENTOPOINTBYMETAMASK, 
+                Arrays.<Type>asList(new org.web3j.abi.datatypes.generated.Uint256(_id), 
                 new org.web3j.abi.datatypes.generated.Uint256(_amount)), 
                 Collections.<TypeReference<?>>emptyList());
         return executeRemoteCallTransaction(function);
@@ -187,70 +199,74 @@ public class Bankroll_sol_BankRoll extends Contract {
         return deployRemoteCall(Bankroll_sol_BankRoll.class, web3j, transactionManager, gasPrice, gasLimit, BINARY, encodedConstructor);
     }
 
-    public List<RedeemEventEventResponse> getRedeemEventEvents(TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = extractEventParametersWithLog(REDEEMEVENT_EVENT, transactionReceipt);
-        ArrayList<RedeemEventEventResponse> responses = new ArrayList<RedeemEventEventResponse>(valueList.size());
+    public List<TokenToPointEventEventResponse> getTokenToPointEventEvents(TransactionReceipt transactionReceipt) {
+        List<Contract.EventValuesWithLog> valueList = extractEventParametersWithLog(TOKENTOPOINTEVENT_EVENT, transactionReceipt);
+        ArrayList<TokenToPointEventEventResponse> responses = new ArrayList<TokenToPointEventEventResponse>(valueList.size());
         for (Contract.EventValuesWithLog eventValues : valueList) {
-            RedeemEventEventResponse typedResponse = new RedeemEventEventResponse();
+            TokenToPointEventEventResponse typedResponse = new TokenToPointEventEventResponse();
             typedResponse.log = eventValues.getLog();
-            typedResponse.sender = (String) eventValues.getIndexedValues().get(0).getValue();
-            typedResponse.amount = (BigInteger) eventValues.getIndexedValues().get(1).getValue();
+            typedResponse._recharger = (String) eventValues.getIndexedValues().get(0).getValue();
+            typedResponse._id = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
+            typedResponse._amount = (BigInteger) eventValues.getNonIndexedValues().get(1).getValue();
             responses.add(typedResponse);
         }
         return responses;
     }
 
-    public Observable<RedeemEventEventResponse> redeemEventEventObservable(EthFilter filter) {
-        return web3j.ethLogObservable(filter).map(new Func1<Log, RedeemEventEventResponse>() {
+    public Observable<TokenToPointEventEventResponse> tokenToPointEventEventObservable(EthFilter filter) {
+        return web3j.ethLogObservable(filter).map(new Func1<Log, TokenToPointEventEventResponse>() {
             @Override
-            public RedeemEventEventResponse call(Log log) {
-                Contract.EventValuesWithLog eventValues = extractEventParametersWithLog(REDEEMEVENT_EVENT, log);
-                RedeemEventEventResponse typedResponse = new RedeemEventEventResponse();
+            public TokenToPointEventEventResponse call(Log log) {
+                Contract.EventValuesWithLog eventValues = extractEventParametersWithLog(TOKENTOPOINTEVENT_EVENT, log);
+                TokenToPointEventEventResponse typedResponse = new TokenToPointEventEventResponse();
                 typedResponse.log = log;
-                typedResponse.sender = (String) eventValues.getIndexedValues().get(0).getValue();
-                typedResponse.amount = (BigInteger) eventValues.getIndexedValues().get(1).getValue();
+                typedResponse._recharger = (String) eventValues.getIndexedValues().get(0).getValue();
+                typedResponse._id = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
+                typedResponse._amount = (BigInteger) eventValues.getNonIndexedValues().get(1).getValue();
                 return typedResponse;
             }
         });
     }
 
-    public Observable<RedeemEventEventResponse> redeemEventEventObservable(DefaultBlockParameter startBlock, DefaultBlockParameter endBlock) {
+    public Observable<TokenToPointEventEventResponse> tokenToPointEventEventObservable(DefaultBlockParameter startBlock, DefaultBlockParameter endBlock) {
         EthFilter filter = new EthFilter(startBlock, endBlock, getContractAddress());
-        filter.addSingleTopic(EventEncoder.encode(REDEEMEVENT_EVENT));
-        return redeemEventEventObservable(filter);
+        filter.addSingleTopic(EventEncoder.encode(TOKENTOPOINTEVENT_EVENT));
+        return tokenToPointEventEventObservable(filter);
     }
 
-    public List<WithdrawEventEventResponse> getWithdrawEventEvents(TransactionReceipt transactionReceipt) {
-        List<Contract.EventValuesWithLog> valueList = extractEventParametersWithLog(WITHDRAWEVENT_EVENT, transactionReceipt);
-        ArrayList<WithdrawEventEventResponse> responses = new ArrayList<WithdrawEventEventResponse>(valueList.size());
+    public List<PointToTokenEventEventResponse> getPointToTokenEventEvents(TransactionReceipt transactionReceipt) {
+        List<Contract.EventValuesWithLog> valueList = extractEventParametersWithLog(POINTTOTOKENEVENT_EVENT, transactionReceipt);
+        ArrayList<PointToTokenEventEventResponse> responses = new ArrayList<PointToTokenEventEventResponse>(valueList.size());
         for (Contract.EventValuesWithLog eventValues : valueList) {
-            WithdrawEventEventResponse typedResponse = new WithdrawEventEventResponse();
+            PointToTokenEventEventResponse typedResponse = new PointToTokenEventEventResponse();
             typedResponse.log = eventValues.getLog();
             typedResponse.sender = (String) eventValues.getIndexedValues().get(0).getValue();
-            typedResponse.amount = (BigInteger) eventValues.getIndexedValues().get(1).getValue();
+            typedResponse._id = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
+            typedResponse.amount = (BigInteger) eventValues.getNonIndexedValues().get(1).getValue();
             responses.add(typedResponse);
         }
         return responses;
     }
 
-    public Observable<WithdrawEventEventResponse> withdrawEventEventObservable(EthFilter filter) {
-        return web3j.ethLogObservable(filter).map(new Func1<Log, WithdrawEventEventResponse>() {
+    public Observable<PointToTokenEventEventResponse> pointToTokenEventEventObservable(EthFilter filter) {
+        return web3j.ethLogObservable(filter).map(new Func1<Log, PointToTokenEventEventResponse>() {
             @Override
-            public WithdrawEventEventResponse call(Log log) {
-                Contract.EventValuesWithLog eventValues = extractEventParametersWithLog(WITHDRAWEVENT_EVENT, log);
-                WithdrawEventEventResponse typedResponse = new WithdrawEventEventResponse();
+            public PointToTokenEventEventResponse call(Log log) {
+                Contract.EventValuesWithLog eventValues = extractEventParametersWithLog(POINTTOTOKENEVENT_EVENT, log);
+                PointToTokenEventEventResponse typedResponse = new PointToTokenEventEventResponse();
                 typedResponse.log = log;
                 typedResponse.sender = (String) eventValues.getIndexedValues().get(0).getValue();
-                typedResponse.amount = (BigInteger) eventValues.getIndexedValues().get(1).getValue();
+                typedResponse._id = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
+                typedResponse.amount = (BigInteger) eventValues.getNonIndexedValues().get(1).getValue();
                 return typedResponse;
             }
         });
     }
 
-    public Observable<WithdrawEventEventResponse> withdrawEventEventObservable(DefaultBlockParameter startBlock, DefaultBlockParameter endBlock) {
+    public Observable<PointToTokenEventEventResponse> pointToTokenEventEventObservable(DefaultBlockParameter startBlock, DefaultBlockParameter endBlock) {
         EthFilter filter = new EthFilter(startBlock, endBlock, getContractAddress());
-        filter.addSingleTopic(EventEncoder.encode(WITHDRAWEVENT_EVENT));
-        return withdrawEventEventObservable(filter);
+        filter.addSingleTopic(EventEncoder.encode(POINTTOTOKENEVENT_EVENT));
+        return pointToTokenEventEventObservable(filter);
     }
 
     public List<LedgerRecordEventEventResponse> getLedgerRecordEventEvents(TransactionReceipt transactionReceipt) {
@@ -259,11 +275,10 @@ public class Bankroll_sol_BankRoll extends Contract {
         for (Contract.EventValuesWithLog eventValues : valueList) {
             LedgerRecordEventEventResponse typedResponse = new LedgerRecordEventEventResponse();
             typedResponse.log = eventValues.getLog();
-            typedResponse._serialNumber = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
-            typedResponse._address = (String) eventValues.getNonIndexedValues().get(1).getValue();
-            typedResponse._oldPiont = (BigInteger) eventValues.getNonIndexedValues().get(2).getValue();
-            typedResponse._newPoint = (BigInteger) eventValues.getNonIndexedValues().get(3).getValue();
-            typedResponse.date = (String) eventValues.getNonIndexedValues().get(4).getValue();
+            typedResponse._id = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
+            typedResponse._address = (List<String>) eventValues.getNonIndexedValues().get(1).getValue();
+            typedResponse._oldPiont = (List<BigInteger>) eventValues.getNonIndexedValues().get(2).getValue();
+            typedResponse._newPoint = (List<BigInteger>) eventValues.getNonIndexedValues().get(3).getValue();
             responses.add(typedResponse);
         }
         return responses;
@@ -276,11 +291,10 @@ public class Bankroll_sol_BankRoll extends Contract {
                 Contract.EventValuesWithLog eventValues = extractEventParametersWithLog(LEDGERRECORDEVENT_EVENT, log);
                 LedgerRecordEventEventResponse typedResponse = new LedgerRecordEventEventResponse();
                 typedResponse.log = log;
-                typedResponse._serialNumber = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
-                typedResponse._address = (String) eventValues.getNonIndexedValues().get(1).getValue();
-                typedResponse._oldPiont = (BigInteger) eventValues.getNonIndexedValues().get(2).getValue();
-                typedResponse._newPoint = (BigInteger) eventValues.getNonIndexedValues().get(3).getValue();
-                typedResponse.date = (String) eventValues.getNonIndexedValues().get(4).getValue();
+                typedResponse._id = (BigInteger) eventValues.getNonIndexedValues().get(0).getValue();
+                typedResponse._address = (List<String>) eventValues.getNonIndexedValues().get(1).getValue();
+                typedResponse._oldPiont = (List<BigInteger>) eventValues.getNonIndexedValues().get(2).getValue();
+                typedResponse._newPoint = (List<BigInteger>) eventValues.getNonIndexedValues().get(3).getValue();
                 return typedResponse;
             }
         });
@@ -300,18 +314,22 @@ public class Bankroll_sol_BankRoll extends Contract {
         return new Bankroll_sol_BankRoll(contractAddress, web3j, transactionManager, gasPrice, gasLimit);
     }
 
-    public static class RedeemEventEventResponse {
+    public static class TokenToPointEventEventResponse {
         public Log log;
 
-        public String sender;
+        public String _recharger;
 
-        public BigInteger amount;
+        public BigInteger _id;
+
+        public BigInteger _amount;
     }
 
-    public static class WithdrawEventEventResponse {
+    public static class PointToTokenEventEventResponse {
         public Log log;
 
         public String sender;
+
+        public BigInteger _id;
 
         public BigInteger amount;
     }
@@ -319,14 +337,12 @@ public class Bankroll_sol_BankRoll extends Contract {
     public static class LedgerRecordEventEventResponse {
         public Log log;
 
-        public BigInteger _serialNumber;
+        public BigInteger _id;
 
-        public String _address;
+        public List<String> _address;
 
-        public BigInteger _oldPiont;
+        public List<BigInteger> _oldPiont;
 
-        public BigInteger _newPoint;
-
-        public String date;
+        public List<BigInteger> _newPoint;
     }
 }

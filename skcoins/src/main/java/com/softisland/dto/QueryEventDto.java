@@ -17,10 +17,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class QueryEventDto {
+	
+	private Long businessId;
 
 	private String tnHash;
 	
-	// 0 eth换TOKEN , 1 token换积分  , 2其他
-	private int type;
+	private String eventName;
 	
 }

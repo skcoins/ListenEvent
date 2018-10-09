@@ -13,7 +13,12 @@ public enum ContractEum {
 	UNSET_ADMINISTRATOR("unsetAdministrator"),
 	REPLACE_ADMINISTRATOR("replaceAdministrator"),
 	UPDATE_LEDGER("updateLedger"),
-	WITH_DRAW("withdraw");
+	WITH_DRAW("pointToToken"),
+	ON_TOKEN_PURCHASE("onTokenPurchase"),
+	ON_TOKEN_SELL("onTokenSell"),
+	SET_SKCADDRESS("setSkcAdderss")
+	;
+	
 
 	private String name;
 	

@@ -9,9 +9,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.softisland.config.TrascationStatusEum;
 import com.softisland.mapper.ExchangeCoinsMapper;
+import com.softisland.mapper.LedgerEventMapper;
 import com.softisland.model.ExchangeCoins;
-import com.softisland.model.TranscationEvent;
+import com.softisland.model.LedgerEvent;
 
 import tk.mybatis.mapper.entity.Condition;
 import tk.mybatis.mapper.entity.Example.Criteria;
@@ -26,6 +28,9 @@ public class ExchangeCoinsService {
 
 	@Autowired
 	ExchangeCoinsMapper exchangeCoinsMapper;
+	
+	@Autowired
+	LedgerEventMapper ledgerEventMapper;
 	
 	/**
 	 * 
@@ -56,8 +61,19 @@ public class ExchangeCoinsService {
 	 * @return
 	 */
 	public List<ExchangeCoins> queryDefaultTranscationEvent(Long nowBlockNumber){
-		
-		return exchangeCoinsMapper.queryDefaultExchangeCoins(nowBlockNumber);
+		return exchangeCoinsMapper.queryDefaultExchangeCoins(TrascationStatusEum.DEFAULT_STATUS.getStatus(),nowBlockNumber);
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public List<ExchangeCoins> queryNoCall(){
+		Condition condition = new Condition(ExchangeCoins.class);
+		Criteria criteria = condition.createCriteria();
+		criteria.andNotEqualTo("status", TrascationStatusEum.DEFAULT_STATUS.getStatus());
+		criteria.andEqualTo("isCall", 0);
+		return exchangeCoinsMapper.selectByCondition(condition);
 	}
 	
 	/**
@@ -91,5 +107,65 @@ public class ExchangeCoinsService {
 				.build());
 	}
 	
+	/**
+	 * 
+	 * @param businessId
+	 * @return
+	 */
+	public List<ExchangeCoins> queryExchangeCoinsByBusinessId(Long businessId){
+		return exchangeCoinsMapper.select(ExchangeCoins.builder()
+				.businessId(businessId)
+				.build());
+	}
 	
+	
+	/**
+	 * 
+	 * @param ledgerEvent
+	 */
+	public int insertledgerEvent(LedgerEvent ledgerEvent){
+		return ledgerEventMapper.insert(ledgerEvent);
+	}
+	
+	/**
+	 * 
+	 * @param ledgerEvent
+	 * @param status
+	 * @return
+	 */
+	public int updateledgerEvent(LedgerEvent ledgerEvent,Integer status){
+		
+		Condition condition = new Condition(ExchangeCoins.class);
+		Criteria criteria = condition.createCriteria();
+		if(status != null){
+			criteria.andNotEqualTo("status", status);
+		}
+		
+		criteria.andEqualTo("id", ledgerEvent.getId());
+		
+		return ledgerEventMapper.updateByConditionSelective(ledgerEvent, condition);
+	}
+	
+	/**
+	 * 
+	 * @param businessId
+	 * @return
+	 */
+	public List<LedgerEvent> queryLedgerEvent(Long businessId){
+		
+		Condition condition = new Condition(LedgerEvent.class);
+		Criteria criteria = condition.createCriteria();
+		criteria.andEqualTo("businessId", businessId);
+		
+		return ledgerEventMapper.selectByCondition(condition);
+	}
+	
+	/**
+	 * 
+	 * @param exchangeCoins
+	 * @return
+	 */
+	public int updateExchangeCoins(ExchangeCoins exchangeCoins){
+		return exchangeCoinsMapper.updateByPrimaryKeySelective(exchangeCoins);
+	}
 }

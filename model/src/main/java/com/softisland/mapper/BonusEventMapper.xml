@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.softisland.mapper.BonusEventMapper" >
+  <resultMap id="BaseResultMap" type="com.softisland.model.BonusEvent" >
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="block_number" property="blockNumber" jdbcType="BIGINT" />
+    <result column="transcation_hash" property="transcationHash" jdbcType="VARCHAR" />
+    <result column="block_hash" property="blockHash" jdbcType="VARCHAR" />
+    <result column="trade_person" property="tradePerson" jdbcType="VARCHAR" />
+    <result column="event_name" property="eventName" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="SMALLINT" />
+    <result column="gas" property="gas" jdbcType="VARCHAR" />
+    <result column="confirm_block_number" property="confirmBlockNumber" jdbcType="BIGINT" />
+    <result column="is_call" property="isCall" jdbcType="SMALLINT" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" />
+    <result column="call_date" property="callDate" jdbcType="TIMESTAMP" />
+    <result column="referrer" property="referrer" jdbcType="VARCHAR" />
+    <result column="referrer_token" property="referrerToken" jdbcType="VARCHAR" />
+    <result column="token_holder" property="tokenHolder" jdbcType="VARCHAR" />
+    <result column="platform_token" property="platformToken" jdbcType="VARCHAR" />
+  </resultMap>
+</mapper>

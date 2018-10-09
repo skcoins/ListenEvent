@@ -6,4 +6,31 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>utils</artifactId>
+  <dependencies>
+  	<dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-redis</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>redis.clients</groupId>
+        <artifactId>jedis</artifactId>
+        <scope>provided</scope>
+    </dependency>
+    
+    <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+  	</dependency>
+  	
+  	 <dependency>
+         <groupId>org.apache.commons</groupId>
+         <artifactId>commons-lang3</artifactId>
+     </dependency>
+     <dependency>
+	     <groupId>com.squareup.okhttp3</groupId>
+	     <artifactId>okhttp</artifactId>
+   	</dependency>
+  
+  </dependencies>
+  
 </project>

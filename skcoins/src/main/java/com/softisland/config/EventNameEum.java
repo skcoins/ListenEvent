@@ -10,17 +10,36 @@ package com.softisland.config;
 public enum EventNameEum {
 
 	/**
-	 * redeem 充值积分
+	 * redeem token换积分
 	 */
-	REDEEM_EVENT("redeemEvent"),
+	REDEEM_EVENT("tokenToPointEvent"),
 	/**
 	 * 积分换token
 	 */
-	WITHDRAW_EVENT("withdrawEvent"),
+	WITHDRAW_EVENT("pointToTokenEvent"),
 	/**
 	 * 结算所有积分
 	 */
-	LEDGER_RECORD_EVENT("ledgerRecordEvent");
+	LEDGER_RECORD_EVENT("ledgerRecordEvent"),
+	/**
+	 * ETH 直接换积分
+	 */
+	ETH_TO_POINT_EVENT("ethToPointEvent"),
+	
+	ON_TOKEN_PURCHASE_EVENT("onTokenPurchaseEvent"),
+	
+	ON_TOKEN_SELL_EVENT("onTokenSellEvent"),
+	/**
+	 * 自动分红
+	 */
+	ASSETS_DETAIL_EVENT("assetsDetailEvent"),
+	/**
+	 * 手动分红
+	 */
+	DIVIDEND_DETAIL_EVENT("dividendDetailEvent")
+	;
+	
+	
 	
 	
 	private String name;

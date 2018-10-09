@@ -18,6 +18,9 @@ public class ContractOperation implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+    @Column(name = "business_id")
+    private Long businessId; 
 
     private String name;
 
@@ -47,6 +50,9 @@ public class ContractOperation implements Serializable {
     private Date updateDate;
 
     private String data;
+    
+    @Column(name = "error_msg")
+    private String errorMsg;
 
     private static final long serialVersionUID = 1L;
 
