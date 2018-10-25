@@ -23,10 +23,12 @@ import org.web3j.crypto.Credentials;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.methods.request.Transaction;
+import org.web3j.protocol.core.methods.response.EthBlockNumber;
 import org.web3j.protocol.core.methods.response.EthEstimateGas;
 import org.web3j.protocol.core.methods.response.EthGasPrice;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
 import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
+import org.web3j.protocol.core.methods.response.EthTransaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.tx.Contract;
 import org.web3j.utils.Convert;
@@ -40,7 +42,7 @@ import com.softisland.contract.Bankroll_sol_BankRoll;
 import com.softisland.contract.Bankroll_sol_BankRoll.PointToTokenEventEventResponse;
 import com.softisland.contract.Bankroll_sol_BankRoll.TokenToPointEventEventResponse;
 import com.softisland.contract.Skcoin_sol_Skcoin;
-import com.softisland.contract.Skcoin_sol_Skcoin.DividendDetailEventResponse;
+import com.softisland.contract.Skcoin_sol_Skcoin.DivideEventResponse;
 import com.softisland.contract.Skcoin_sol_Skcoin.OnTokenPurchaseEventResponse;
 import com.softisland.contract.Skcoin_sol_Skcoin.OnTokenSellEventResponse;
 import com.softisland.dto.AddressArrayDto;
@@ -310,6 +312,11 @@ public class ContractService {
 					.build();
 				} else {
 					if(queryEventDto.getEventName().equals(EventNameEum.ON_TOKEN_PURCHASE_EVENT.getName())){
+						
+						EthTransaction ethTransaction = web3j.ethGetTransactionByHash(queryEventDto.getTnHash()).send();
+						
+						org.web3j.protocol.core.methods.response.Transaction transaction = ethTransaction.getResult();
+						
 						List<OnTokenPurchaseEventResponse> buyTokenList = skcoin_sol_Skcoin.getOnTokenPurchaseEvents(transcationReceipt);
 						
 						OnTokenPurchaseEventResponse v = buyTokenList.get(0);
@@ -328,11 +335,17 @@ public class ContractService {
 							.tokensMinted(v.tokensMinted.toString())
 							.tradePerson(v.customerAddress)
 							.transcationHash(v.log.getTransactionHash())
+							.gas(transcationReceipt.getGasUsed().multiply(transaction.getGasPrice()).toString())
 							.isCall((short)0)
 						.build();
 						//
 						transcationEventService.insertTranscationEvent(transcationEvent);
 					} else if (queryEventDto.getEventName().equals(EventNameEum.ON_TOKEN_SELL_EVENT.getName())){
+						
+						EthTransaction ethTransaction = web3j.ethGetTransactionByHash(queryEventDto.getTnHash()).send();
+						
+						org.web3j.protocol.core.methods.response.Transaction transaction = ethTransaction.getResult();
+						
 						List<OnTokenSellEventResponse> sellTokenList = skcoin_sol_Skcoin.getOnTokenSellEvents(transcationReceipt);
 						
 						OnTokenSellEventResponse v = sellTokenList.get(0);
@@ -349,6 +362,7 @@ public class ContractService {
 							.transcationHash(v.log.getTransactionHash())
 							.ethMinted(v.ethereumEarned.toString())
 							.isCall((short)0)
+							.gas(transcationReceipt.getGasUsed().multiply(transaction.getGasPrice()).toString())
 							.divChoice(v.divRate.toString())
 						.build();
 						//
@@ -511,10 +525,10 @@ public class ContractService {
 			.businessId(v.getBusinessId())
 			.eventName(v.getEventName())
 			.currency(v.getCurrency().intValue())
-			.divChoice(v.getDivChoice())
+			.divChoice(v.getDivChoice() != null ? new BigDecimal(v.getDivChoice()).divide(new BigDecimal("2").pow(64)).setScale(8, BigDecimal.ROUND_HALF_UP).toPlainString() : null)
 			.ethMinted(v.getEthMinted() != null ? Convert.fromWei(v.getEthMinted(), Convert.Unit.ETHER).toPlainString() : null)
 			.eventName(v.getEventName())
-			.nums(v.getCurrency().equals((short)0) ? Convert.fromWei(v.getNums(),Convert.Unit.ETHER).toPlainString() : v.getNums())
+			.nums(v.getNums() != null ? Convert.fromWei(v.getNums(),Convert.Unit.ETHER).toPlainString() : null)
 			.referredBy(v.getReferredBy())
 			.status(v.getStatus().intValue())
 			.tokenPrice(v.getTokenPrice() != null ? Convert.fromWei(v.getTokenPrice(), Convert.Unit.ETHER).toPlainString() : null)
@@ -532,14 +546,15 @@ public class ContractService {
 	 */
 	public TranscationEventVo getTranscationEventVo(BonusEvent v){
 		return TranscationEventVo.builder()
+				.transactionHash(v.getTranscationHash())
 				.eventName(v.getEventName())
 				.gasUsed(v.getGas() !=null ?Convert.fromWei(v.getGas(), Convert.Unit.ETHER).toPlainString(): null)
 				.status(v.getStatus().intValue())
 				.tradePerson(v.getTradePerson())
 				.referredBy(v.getReferrer())
-				.referrerToken(v.getReferrerToken())
-				.tokenHolder(v.getTokenHolder())
-				.platformToken(v.getPlatformToken())
+				.referrerToken(v.getReferrerToken() != null ? Convert.fromWei(v.getReferrerToken(), Convert.Unit.ETHER).toPlainString() : null)
+				.tokenHolder(v.getTokenHolder() != null ? Convert.fromWei(v.getTokenHolder(), Convert.Unit.ETHER).toPlainString() : null)
+				.platformToken(v.getPlatformToken() != null ? Convert.fromWei(v.getPlatformToken(), Convert.Unit.ETHER).toPlainString() : null)
 				.build();
 	}
 	
@@ -664,7 +679,6 @@ public class ContractService {
 			
 			Credentials credentials = Credentials.create(divideDto.getAdminPrikey());
 			Skcoin_sol_Skcoin skcoin = Skcoin_sol_Skcoin.load(skcoin_sol_Skcoin.getContractAddress(), web3j, credentials,gasPrice, gasLimit);
-			
 			transactionReceipt = skcoin.divide().send();
 			
 			if(transactionReceipt !=null && transactionReceipt.isStatusOK()){
@@ -681,13 +695,18 @@ public class ContractService {
 						.status((short)1)
 						.build());
 				
-				List<DividendDetailEventResponse> list = skcoin.getDividendDetailEvents(transactionReceipt);
+//				List<DividendDetailEventResponse> list = skcoin.getDividendDetailEvents(transactionReceipt);
+				
+				List<DivideEventResponse> list = skcoin.getDivideEvents(transactionReceipt);
+				
+				
 				
 				list.forEach(v->{
 					divideVoList.add(DivideVo.builder()
 							.customerAddress(v.customerAddress)
-							.referrerToken(v.referrerToken.toString())
-							.tokenHolder(v.tokenHolder.toString())
+							.referrerToken(v.totalToken.toString())
+//							.referrerToken(v.referrerToken.toString())
+//							.tokenHolder(v.tokenHolder.toString())
 							.build());
 				});
 			}
@@ -870,7 +889,7 @@ public class ContractService {
 								businessId = pointToTokenList.get(0)._id.longValue();
 							}
 							contractOperationMapper.insert(ContractOperation.builder()
-									.businessId(businessId)
+									.businessId(pointToTokenDto.getBusinessId())
 									.name(ContractEum.WITH_DRAW.getName())
 									.blockHash(transactionReceipt.getBlockHash())
 									.blockNumber(transactionReceipt.getBlockNumber().longValue())
@@ -922,19 +941,19 @@ public class ContractService {
 		
 	}
 	
-	public Boolean setTestTotalSupply(String tokenSupply){
-		Boolean ret = false;
-		try {
-			TransactionReceipt transactionReceipt = skcoin_sol_Skcoin.setTestTotalSupply(new BigInteger(tokenSupply)).send();
-			if(transactionReceipt!=null && transactionReceipt.isStatusOK()){
-				ret = true;
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return ret;
-	}
+//	public Boolean setTestTotalSupply(String tokenSupply){
+//		Boolean ret = false;
+//		try {
+//			TransactionReceipt transactionReceipt = skcoin_sol_Skcoin.setTestTotalSupply(new BigInteger(tokenSupply)).send();
+//			if(transactionReceipt!=null && transactionReceipt.isStatusOK()){
+//				ret = true;
+//			}
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		return ret;
+//	}
 	
 	/**
 	 * 获取燃油
@@ -969,6 +988,16 @@ public class ContractService {
 		return gasLimit;
 	}
 	
+	public Boolean regularPhase(){
+		Boolean ret = null;
+		try {
+			ret = skcoin_sol_Skcoin.regularPhase().send();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return ret;
+	}
+	
 	/**
 	 * 获取当时单价
 	 * @return
@@ -986,6 +1015,65 @@ public class ContractService {
 		}
 		
 		return gasPrice;
+	}
+	
+	public void init(){
+		
+		
+		
+		try {
+			bankroll_sol_BankRoll.setAdministrator(Arrays.asList("0x5efcfdc9957e86c620e91536ad65bb23dbfa4719")).send();
+			skcoin_sol_Skcoin.setAdministrator("0x5efcfdc9957e86c620e91536ad65bb23dbfa4719", true).send();
+			
+			skcoin_sol_Skcoin.setBankrollAddress(bankroll_sol_BankRoll.getContractAddress()).send();
+			bankroll_sol_BankRoll.setSkcAdderss(skcoin_sol_Skcoin.getContractAddress()).send();
+			
+//			TransactionReceipt transactionReceipt = skcoin_sol_Skcoin.endICOPhase().send();
+			
+//			if(transactionReceipt.isStatusOK()){
+//				System.out.println(transactionReceipt.getBlockHash());
+//			}
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public void test(){
+		try {
+			
+			TransactionReceipt transactionReceipt = web3j.ethGetTransactionReceipt("0x11bf8efc25b2c644459e382c81c3da5df14b930b674b8a6e739bb3c3d0107257").send().getResult();
+			
+//			skcoin_sol_Skcoin.getOnTokenPurchaseEvents(transactionReceipt);
+			
+//			bankroll_sol_BankRoll.getTokenToPointEventEvents(transactionReceipt);
+			
+			EthBlockNumber ethBlockNumber = web3j.ethBlockNumber().send();
+			
+			System.out.println(ethBlockNumber.getBlockNumber().intValue());
+			
+//			DefaultBlockParameter startBlockNumber = DefaultBlockParameter.valueOf(new BigInteger("1"));
+//			DefaultBlockParameter endBlockNumber =  DefaultBlockParameter.valueOf(new BigInteger("100"));
+//			skcoin_sol_Skcoin.onTokenPurchaseEventObservable(startBlockNumber, endBlockNumber).subscribe(v->{
+//				System.out.println(v.tokenPrice.intValue());
+//				System.out.println(v.customerAddress);
+//			});
+			
+//			skcoin_sol_Skcoin.getOnTokenPurchaseEvents(transactionReceipt).forEach(v->{
+//				System.out.println(v.tokenPrice);
+//				System.out.println(v.log.getBlockNumber().intValue());
+//			});;
+			
+			
+//			if(transactionReceipt.isStatusOK()){
+//				log.info("完成");
+//			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 }

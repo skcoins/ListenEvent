@@ -3,12 +3,16 @@
  */
 package com.softisland.service;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.protocol.http.HttpService;
 
 import com.alibaba.fastjson.JSON;
 import com.softisland.bean.domian.SoftHttpResponse;
@@ -163,9 +167,24 @@ public class CallBackService {
 			
 		});
 	}
-//	public static void main(String[] args) {
-//		System.out.println(Convert.fromWei("186357",Convert.Unit.ETHER).toPlainString());
+	public static void main(String[] args) {
+		
+//		Web3j web3j = Web3j.build(new HttpService("http://172.16.12.66:8545"));
 //		
+//		try {
+//			
+//			System.out.println(JSON.toJSONString(transactionReceipt));
+//			
+//			
+//			
+//		
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
+//		System.out.println(Convert.fromWei("186357",Convert.Unit.ETHER).toPlainString());
+		
 //		System.out.println(new BigDecimal("186357").divide(new BigDecimal("1000000000000000000")).setScale(18, BigDecimal.ROUND_HALF_UP).toPlainString());
-//	}
+	}
 }

@@ -112,12 +112,14 @@ public class ContractController {
 		
 		try {
 			message.setData(contractService.divide(divideDto));
-		} catch (SkcoinException e) {
+		} 
+		catch (SkcoinException e) {
 			message.setRet(Message.SUCCESS);
 			message.setCode(e.getMessage().substring(0,e.getMessage().indexOf("_")));
 			message.setMsg(e.getMessage().substring(e.getMessage().indexOf("_")+1,e.getMessage().length()));
 			e.printStackTrace();
-		} catch (Exception e) {
+		} 
+		catch (Exception e) {
 			message.setRet(Message.FAILED);
 			message.setCode("500");
 			message.setMsg("服务器错误，请稍后再试");
@@ -241,7 +243,27 @@ public class ContractController {
 				.msg("成功")
 				.build();
 		try {
-			message.setData(contractService.setTestTotalSupply(totalSupply));
+//			message.setData(contractService.setTestTotalSupply(totalSupply));
+		}   catch (Exception e) {
+			message.setRet(Message.FAILED);
+			message.setCode("500");
+			message.setMsg("服务器错误，请稍后再试");
+			e.printStackTrace();
+		}
+		
+		return message;
+	}
+	
+	@ResponseBody
+	@RequestMapping("/regularPhase")
+	public Message regularPhase(){
+		Message message = Message.builder()
+				.ret(Message.SUCCESS)
+				.code("200")
+				.msg("成功")
+				.build();
+		try {
+			message.setData(contractService.regularPhase());
 		}   catch (Exception e) {
 			message.setRet(Message.FAILED);
 			message.setCode("500");

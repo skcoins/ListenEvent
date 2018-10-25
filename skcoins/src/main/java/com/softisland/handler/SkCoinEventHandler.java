@@ -3,11 +3,13 @@
  */
 package com.softisland.handler;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 import com.softisland.config.EventNameEum;
 import com.softisland.config.TrascationStatusEum;
 import com.softisland.contract.Skcoin_sol_Skcoin.BoughtAssetsDetailEventResponse;
+import com.softisland.contract.Skcoin_sol_Skcoin.DivideEventResponse;
 import com.softisland.contract.Skcoin_sol_Skcoin.OnTokenPurchaseEventResponse;
 import com.softisland.contract.Skcoin_sol_Skcoin.OnTokenSellEventResponse;
 import com.softisland.model.BonusEvent;
@@ -87,6 +89,20 @@ public class SkCoinEventHandler<T> implements Runnable{
 						.isCall((short)0)
 						.platformToken(v.toPlatformToken.toString())
 						.build());
+			}else if (t instanceof DivideEventResponse){
+				DivideEventResponse v = (DivideEventResponse)t;
+				transcationEventService.insertBonusEvent(BonusEvent.builder()
+						.blockHash(v.log.getBlockHash())
+						.blockNumber(v.log.getBlockNumber().longValue())
+						.createDate(new Date())
+						.eventName(EventNameEum.DIVID_EVENT.getName())
+						.status(TrascationStatusEum.DEFAULT_STATUS.getStatus().shortValue())
+						.tradePerson(v.customerAddress)
+						.tokenHolder(v.totalToken.toString())
+						.transcationHash(v.log.getTransactionHash())
+						.isCall((short)0)
+						.build());
+				
 			}
 		} catch (Exception e) {
 			log.error("SKCOINEVENT写入数据库异常（{}）",e);
@@ -94,4 +110,8 @@ public class SkCoinEventHandler<T> implements Runnable{
 		}
 	}
 
+	public static void main(String[] args) {
+		System.out.println(new BigDecimal("368934881474191032").divide(new BigDecimal("2").pow(64)).setScale(8, BigDecimal.ROUND_DOWN).toPlainString());
+		System.out.println(Math.pow(2, 4));
+	}
 }

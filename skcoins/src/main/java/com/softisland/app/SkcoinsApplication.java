@@ -1,20 +1,11 @@
 package com.softisland.app;
 
-import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.Collections;
-
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
-import org.web3j.abi.TypeReference;
-import org.web3j.abi.datatypes.Function;
-import org.web3j.abi.datatypes.Type;
 
-import com.softisland.config.ContractEum;
-import com.softisland.contract.Bankroll_sol_BankRoll;
 import com.softisland.listener.BankRollContractListener;
 import com.softisland.listener.SkCoinContractListener;
 import com.softisland.service.ContractService;
@@ -30,13 +21,14 @@ public class SkcoinsApplication {
     	
         BankRollContractListener contractListener = context.getBean(BankRollContractListener.class);
         
-        SkCoinContractListener SkCoinContractListener = context.getBean(SkCoinContractListener.class);
+        SkCoinContractListener skCoinContractListener = context.getBean(SkCoinContractListener.class);
         
         
         try {
-//        	
-			contractListener.redeemEventLister();
-			SkCoinContractListener.ethTokensListener();
+//        	contractListener.test();
+        	skCoinContractListener.ethTokensListener();
+        	contractListener.redeemEventLister();
+        	
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

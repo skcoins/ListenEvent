@@ -34,6 +34,10 @@ public enum EventNameEum {
 	 */
 	ASSETS_DETAIL_EVENT("assetsDetailEvent"),
 	/**
+	 * 
+	 */
+	DIVID_EVENT("divideEvent"),
+	/**
 	 * 手动分红
 	 */
 	DIVIDEND_DETAIL_EVENT("dividendDetailEvent")

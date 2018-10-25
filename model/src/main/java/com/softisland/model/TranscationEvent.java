@@ -39,6 +39,7 @@ public class TranscationEvent implements Serializable {
 
     private String nums;
 
+    //0:ETH 1：TOKEN 2：积分 
     private Short currency;
 
     //交易状态 0初始化，1交易成功 2交易失败

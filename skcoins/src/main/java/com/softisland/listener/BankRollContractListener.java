@@ -200,11 +200,18 @@ public class BankRollContractListener {
 	}
 	
 	public void test() throws IOException{
-		EthGetTransactionReceipt ethGetTransactionReceipt = web3j.ethGetTransactionReceipt("0x13db5dab91440c3b9f00c8c7c3e307e9ee6d72d49c894e853efa924fac4e66d6").send();
-		EthGetTransactionReceipt ethGetTransactionReceipt1 = web3j.ethGetTransactionReceipt("0x92f635317aefb47cbbf76046b8667075ee1086c930374a71a50430c97ae6dc45").send();
-		
+		EthGetTransactionReceipt ethGetTransactionReceipt = web3j.ethGetTransactionReceipt("0x658ce77ece79b7d09ef861a1e4d53371b3697250a780b45951eb63c3ba6587ec").send();
+//		EthGetTransactionReceipt ethGetTransactionReceipt1 = web3j.ethGetTransactionReceipt("0x92f635317aefb47cbbf76046b8667075ee1086c930374a71a50430c97ae6dc45").send();
+//		
 		System.out.println(JSON.toJSONString(ethGetTransactionReceipt.getResult()));
-		System.out.println(JSON.toJSONString(ethGetTransactionReceipt1.getResult()));
+//		System.out.println(JSON.toJSONString(ethGetTransactionReceipt1.getResult()));
+		DefaultBlockParameter startBlockNumber = DefaultBlockParameter.valueOf(new BigInteger("20899"));
+		
+		bankroll_sol_BankRoll.pointToTokenEventEventObservable(startBlockNumber, DefaultBlockParameterName.LATEST).subscribe(v->{
+			System.out.println(v._id);
+			System.out.println(v.amount);
+		});
+		
 	}
 	
 }

@@ -37,9 +37,14 @@ public class BeanConfig {
 		return JRedisUtils.getInstance(redisProperties());
 	}
 
+//	@Bean
+//	public Web3j web3j(){
+//		return Web3j.build(new HttpService("http://209.97.164.186:8545"));
+//	}
+	
 	@Bean
 	public Web3j web3j(){
-		return Web3j.build(new HttpService("http://209.97.164.186:8545"));
+		return Web3j.build(new HttpService("http://172.16.20.151:8545"));
 	}
 	
 	@Bean

@@ -222,7 +222,8 @@ public class SkCoinContractListener {
 		onTokenSellEvent(startBlockNumber);
 		//分红
 		assetsDetailEvent(startBlockNumber);
-		
+		//手动分红
+		devideEvent(startBlockNumber);
 	}
 	
 	/**
@@ -256,6 +257,18 @@ public class SkCoinContractListener {
 	public void assetsDetailEvent(DefaultBlockParameter startBlockNumber){
 		skcoin_sol_Skcoin.boughtAssetsDetailEventObservable(startBlockNumber,  DefaultBlockParameterName.LATEST).subscribe(v -> {
 			CommonHandler.commonPool.execute(new SkCoinEventHandler<>(v, transcationEventService));;
+		},error -> {
+			log.error("巡检发生异常({})",error);
+		});
+	}
+	
+	/**
+	 * 手动分红
+	 * @param startBlockNumber
+	 */
+	public void devideEvent(DefaultBlockParameter startBlockNumber){
+		skcoin_sol_Skcoin.divideEventObservable(startBlockNumber, DefaultBlockParameterName.LATEST).subscribe(v -> {
+			CommonHandler.commonPool.execute(new SkCoinEventHandler<>(v, transcationEventService));
 		},error -> {
 			log.error("巡检发生异常({})",error);
 		});
